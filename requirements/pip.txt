@@ -1,0 +1,2 @@
+line_profiler>=2.1.2
+memory-profiler>=0.55.0
