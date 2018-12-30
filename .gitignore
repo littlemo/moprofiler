@@ -112,6 +112,9 @@ cscope.*
 # Mac OS
 .DS_Store
 
+# Emacs
+.dir-locals.el
+
 # Customs
 backups
 VERSION
