@@ -2,14 +2,17 @@
 """
 提供用于时间性能分析的工具
 """
+import inspect
 import logging
 from collections import defaultdict
 from contextlib import contextmanager
 from functools import wraps
 from time import time
+from types import FunctionType
 
 from line_profiler import LineProfiler
-from pyaop import AOP, Proxy, Return
+
+from . import base
 
 LOG = logging.getLogger(__name__)
 
@@ -33,25 +36,7 @@ def time_profiler(func):
     return wrapper
 
 
-def proxy(obj, prop, prop_name):
-    """
-    为 object 对象代理一个属性
-    :param object obj: 被代理的对象
-    :param object prop: 代理返回的属性
-    :param str prop_name: 被代理的属性名
-    :return: 被代理之后的对象
-    :rtype: object
-    """
-    def common(proxy, name, value=None):
-        if name == prop_name:
-            Return(prop)
-
-    return Proxy(obj, before=[
-        AOP.Hook(common, ["__getattribute__", "__setattr__", "__delattr__"]),
-    ])
-
-
-class TimeProfilerMixin(object):
+class TimeProfilerMixin(base.ProfilerMixin):
     """
     时间分析器 Mixin 类
 
@@ -59,12 +44,12 @@ class TimeProfilerMixin(object):
     - 针对需要多次调用的方法进行累加分析的场景
     - 在一次代码执行流程中同时分析多个方法，并灵活控制分析结果的输出
     """
-    _POOL = defaultdict(LineProfiler)  #: 用来暂存分析器的池子
-    time_profiler = None  # type: LineProfiler
+    _PROFILER_POOL = defaultdict(LineProfiler)  #: 用来暂存时间分析器的池子
+    _time_profiler = None  # type: LineProfiler
 
     @classmethod
     @contextmanager
-    def get_time_profiler(cls, self_or_cls, **callargs):
+    def _get_profiler(cls, self_or_cls, **callargs):
         """
         获取时间分析器
 
@@ -73,10 +58,53 @@ class TimeProfilerMixin(object):
         :return: 返回被代理的对象 or 类
         :rtype: Iterator[object]
         """
-        with super(TimeProfilerMixin, cls).get_time_profiler(
+        with super(TimeProfilerMixin, cls)._get_profiler(
                 self_or_cls, **callargs) as self_or_cls:
-            time_profiler_name = callargs.get('_time_profiler_name', 'default')
+            _name = callargs.get('_profiler_name')
+            if not _name:
+                raise RuntimeError('未获取到时间分析器名称！')
             yield proxy(
                 self_or_cls,
-                prop_name='time_profiler',
-                prop=cls._POOL[time_profiler_name])
+                prop_name='_time_profiler',
+                prop=cls._PROFILER_POOL[_name])
+
+    @classmethod
+    def time_profiler(self_or_cls, name):
+        """
+        获取指定的时间分析器
+
+        :param str name: 指定的时间分析器名称
+        :return: 时间分析器对象
+        :rtype: LineProfiler
+        :raises KeyError: 获取的键名不存在
+        """
+        key = get_default_key(self_or_cls, name)
+        if key not in self_or_cls._PROFILER_POOL:
+            raise KeyError('获取的键名({name})不存在！'.format(name=name))
+        return self_or_cls._PROFILER_POOL[key]
+
+    @staticmethod
+    def profiler_manager(*dargs, **dkwargs):
+        """
+        返回分析器管理下的方法
+
+        :param str name: 关键字参数，被装饰方法代理生成的 _time_profiler 所使用的名称，默认为使用被装饰方法的方法名
+        :return: 装饰后的方法
+        :rtype: function
+        """
+        invoked = bool(len(dargs) == 1 and not dkwargs and callable(dargs[0]))
+        if invoked:
+            func = dargs[0]  # type: FunctionType
+
+        def wrapper(func):
+            # type: (FunctionType) -> FunctionType
+            @wraps(func)
+            def inner(self_or_cls, *args, **kwargs):
+                callargs = get_callargs(func, self_or_cls, *args, **kwargs)
+                callargs.pop("cls", None)
+                callargs['_profiler_name'] = dkwargs.get('name') or get_default_key(self_or_cls, func)
+                with self_or_cls._get_profiler(self_or_cls, **callargs) as self_or_cls:
+                    profiler_wrapper = self_or_cls._time_profiler(func)
+                    return profiler_wrapper(self_or_cls, *args, **kwargs)
+            return inner
+        return wrapper if not invoked else wrapper(func)
