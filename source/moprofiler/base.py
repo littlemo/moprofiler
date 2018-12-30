@@ -23,7 +23,10 @@ def proxy(obj, prop, prop_name):
     :return: 被代理之后的对象
     :rtype: object
     """
-    def common(proxy, name, value=None):
+    def common(_proxy, name, value=None):  # pylint: disable=W0613
+        """
+        用于 Hook 的钩子函数
+        """
         if name == prop_name:
             Return(prop)
 
@@ -46,7 +49,7 @@ def get_callargs(func, *args, **kwargs):
         if isinstance(closure.cell_contents, FunctionType):
             func = closure.cell_contents
             return get_callargs(func, *args, **kwargs)
-    else:
+    else:  # pylint: disable=W0120
         callargs = inspect.getcallargs(func, *args, **kwargs)
         spec = inspect.getargspec(func)
 
@@ -96,7 +99,7 @@ class ProfilerMixin(object):
 
     @classmethod
     @contextmanager
-    def _get_profiler(cls, self_or_cls, **callargs):
+    def _get_profiler(cls, self_or_cls, **callargs):  # pylint: disable=W0613
         """
         子类需要通过 super 调用父类的 _get_profiler 方法获取代理了指定分析器的 Proxy 对象
 
