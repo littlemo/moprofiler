@@ -2,19 +2,44 @@
 """
 提供用于时间性能分析的工具
 """
-import inspect
 import logging
+import time
 from collections import defaultdict
 from contextlib import contextmanager
 from functools import wraps
-from time import time
-from types import FunctionType
 
 from line_profiler import LineProfiler
 
 from . import base
 
 LOG = logging.getLogger(__name__)
+
+
+def stats_exec_time(print_args=False):
+    """
+    统计函数执行时间
+    """
+    def _decorate(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            """用于统计执行时间的封装方法"""
+            _begin_time = time.time()
+            result = func(*args, **kwargs)
+            _end_time = time.time()
+
+            if print_args:
+                LOG.info(
+                    '[性能] 统计目标: {name}, 参数列表: [{args}, '
+                    '{kwargs}], 耗时: {use:.4f}s'.format(
+                        name=func.__name__, args=args, kwargs=kwargs,
+                        use=_end_time-_begin_time))
+            else:
+                LOG.info(
+                    '[性能] 统计目标: {name}, 耗时: {use:.4f}s'.format(
+                        name=func.__name__, use=_end_time-_begin_time))
+            return result
+        return wrapper
+    return _decorate
 
 
 def time_profiler(func):

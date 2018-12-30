@@ -5,7 +5,7 @@
 import abc
 import inspect
 import logging
-from collections import defaultdict
+from contextlib import contextmanager
 from types import FunctionType
 
 from pyaop import AOP, Proxy, Return
