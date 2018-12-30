@@ -34,5 +34,5 @@ class TestTimeProfiler(object):
                     cnt += 1
             return cnt
 
-        random_list = [random.choice(['2', '11']) for _x in range(10000)]
+        random_list = [random.choice(['2', '11']) for _x in range(1000)]
         assert _judge_with_set(random_list) == _judge_with_list(random_list)
