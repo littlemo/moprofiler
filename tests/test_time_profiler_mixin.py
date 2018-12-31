@@ -5,7 +5,7 @@
 import pytest
 from line_profiler import LineProfiler
 
-from moprofiler.time_profiler import TimeProfilerMixin
+from moprofiler.time import TimeProfilerMixin
 
 
 class QucikSort(TimeProfilerMixin):
@@ -39,7 +39,7 @@ class QucikSort(TimeProfilerMixin):
         self.swap(pivot, index - 1)
         return index - 1
 
-    # @time_profiler.TimeProfilerMixin.profiler_manager
+    # @TimeProfilerMixin.profiler_manager
     def swap(self, i, j):
         """交换"""
         self.arr[i], self.arr[j] = self.arr[j], self.arr[i]
