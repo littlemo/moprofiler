@@ -4,6 +4,7 @@
 """
 import logging
 import time
+import types  # pylint: disable=W0611
 from collections import defaultdict
 from contextlib import contextmanager
 from functools import wraps
@@ -84,17 +85,17 @@ class TimeProfilerMixin(base.ProfilerMixin):
         :rtype: Iterator[object]
         """
         with super(TimeProfilerMixin, cls)._get_profiler(
-                self_or_cls, **callargs) as self_or_cls:
+            self_or_cls, **callargs) as _self_or_cls:
             _name = callargs.get('_profiler_name')
             if not _name:
                 raise RuntimeError('未获取到时间分析器名称！')
-            yield proxy(
-                self_or_cls,
+            yield base.proxy(
+                _self_or_cls,
                 prop_name='_time_profiler',
                 prop=cls._PROFILER_POOL[_name])
 
     @classmethod
-    def time_profiler(self_or_cls, name):
+    def time_profiler(cls, name):
         """
         获取指定的时间分析器
 
@@ -103,10 +104,10 @@ class TimeProfilerMixin(base.ProfilerMixin):
         :rtype: LineProfiler
         :raises KeyError: 获取的键名不存在
         """
-        key = get_default_key(self_or_cls, name)
-        if key not in self_or_cls._PROFILER_POOL:
+        key = base.get_default_key(cls, name)
+        if key not in cls._PROFILER_POOL:
             raise KeyError('获取的键名({name})不存在！'.format(name=name))
-        return self_or_cls._PROFILER_POOL[key]
+        return cls._PROFILER_POOL[key]
 
     @staticmethod
     def profiler_manager(*dargs, **dkwargs):
@@ -119,17 +120,27 @@ class TimeProfilerMixin(base.ProfilerMixin):
         """
         invoked = bool(len(dargs) == 1 and not dkwargs and callable(dargs[0]))
         if invoked:
-            func = dargs[0]  # type: FunctionType
+            func = dargs[0]  # type: types.MethodType
 
         def wrapper(func):
-            # type: (FunctionType) -> FunctionType
+            """
+            装饰器封装函数
+
+            :param types.MethodType func: 被装饰方法
+            :return: 封装后的方法
+            :rtype: types.MethodType
+            """
             @wraps(func)
             def inner(self_or_cls, *args, **kwargs):
-                callargs = get_callargs(func, self_or_cls, *args, **kwargs)
+                """
+                将被封装方法所用的 self_or_cls 进行代理，并使用时间分析器对齐进行再封装
+                """
+                callargs = base.get_callargs(func, self_or_cls, *args, **kwargs)
                 callargs.pop("cls", None)
-                callargs['_profiler_name'] = dkwargs.get('name') or get_default_key(self_or_cls, func)
-                with self_or_cls._get_profiler(self_or_cls, **callargs) as self_or_cls:
-                    profiler_wrapper = self_or_cls._time_profiler(func)
-                    return profiler_wrapper(self_or_cls, *args, **kwargs)
+                callargs['_profiler_name'] = dkwargs.get('name') \
+                    or base.get_default_key(self_or_cls, func)
+                with self_or_cls._get_profiler(self_or_cls, **callargs) as _self_or_cls:
+                    profiler_wrapper = _self_or_cls._time_profiler(func)
+                    return profiler_wrapper(_self_or_cls, *args, **kwargs)
             return inner
         return wrapper if not invoked else wrapper(func)
