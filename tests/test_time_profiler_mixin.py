@@ -5,17 +5,17 @@
 import pytest
 from line_profiler import LineProfiler
 
-from moprofiler import time_profiler
+from moprofiler.time_profiler import TimeProfilerMixin
 
 
-class QucikSort(time_profiler.TimeProfilerMixin):
+class QucikSort(TimeProfilerMixin):
     """
     快速排序
     """
     def __init__(self, arr):
         self.arr = arr
 
-    @time_profiler.TimeProfilerMixin.profiler_manager(name='quick_sort')
+    @TimeProfilerMixin.profiler_manager(name='quick_sort')
     def sort(self, left=None, right=None):
         """排序"""
         left = 0 if not isinstance(left, (int, float)) else left
@@ -25,7 +25,7 @@ class QucikSort(time_profiler.TimeProfilerMixin):
             self.sort(left, partition_index - 1)
             self.sort(partition_index + 1, right)
 
-    @time_profiler.TimeProfilerMixin.profiler_manager
+    @TimeProfilerMixin.profiler_manager
     def partition(self, left, right):
         """分区"""
         pivot = left
@@ -56,7 +56,7 @@ class TestTimeProfilerMixin(object):
         qs = QucikSort(unsort_list)
         qs.sort()
         print('排序列表：{}'.format(qs.arr))
-        print('时间分析器暂存池：{}'.format(time_profiler.TimeProfilerMixin._PROFILER_POOL.keys()))
+        print('时间分析器暂存池：{}'.format(TimeProfilerMixin._PROFILER_POOL.keys()))
         with pytest.raises(KeyError):
             qs.time_profiler('sort')
         assert isinstance(qs.time_profiler('partition'), LineProfiler)
