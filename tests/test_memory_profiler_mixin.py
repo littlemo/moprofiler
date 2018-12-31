@@ -39,7 +39,7 @@ class TestMemoryProfilerMixin(object):
         mw = MemoryWaste()
         x = mw.list_waste()
         mw.dict_waste(x)
-        print('内存分析器暂存池：{}'.format(MemoryProfilerMixin._PROFILER_POOL.keys()))
+        print('内存分析器暂存池：{}'.format(MemoryProfilerMixin._MEMORY_PROFILER_POOL.keys()))
         with pytest.raises(KeyError):
             mw.memory_profiler('list_waste')
         assert isinstance(mw.memory_profiler('dict_waste'), LineProfiler)

@@ -56,7 +56,7 @@ class TestTimeProfilerMixin(object):
         qs = QucikSort(unsort_list)
         qs.sort()
         print('排序列表：{}'.format(qs.arr))
-        print('时间分析器暂存池：{}'.format(TimeProfilerMixin._PROFILER_POOL.keys()))
+        print('时间分析器暂存池：{}'.format(TimeProfilerMixin._TIME_PROFILER_POOL.keys()))
         with pytest.raises(KeyError):
             qs.time_profiler('sort')
         assert isinstance(qs.time_profiler('partition'), LineProfiler)

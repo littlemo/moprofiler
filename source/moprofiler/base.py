@@ -2,7 +2,6 @@
 """
 提供用于性能分析的相关基类&函数定义
 """
-import abc
 import inspect
 import logging
 from contextlib import contextmanager
@@ -86,17 +85,6 @@ class ProfilerMixin(object):
     """
     分析器 Mixin 的基类
     """
-    __metaclass__ = abc.ABCMeta
-
-    @abc.abstractproperty
-    def _PROFILER_POOL(self):
-        """
-        用来暂存分析器的池子
-
-        :return: 分析器池
-        :rtype: defaultdict
-        """
-
     @classmethod
     @contextmanager
     def _get_profiler(cls, self_or_cls, **callargs):  # pylint: disable=W0613

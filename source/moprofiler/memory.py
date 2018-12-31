@@ -43,12 +43,12 @@ class MemoryProfilerMixin(base.ProfilerMixin):
     - 在一次代码执行流程中同时分析多个方法，并灵活控制分析结果的输出
     """
     # 此处若想修改 backend 可通过继承该 mixin 并修改 defaultdict 中的默认值来实现
-    _PROFILER_POOL = defaultdict(MemoryProfiler)  #: 用来暂存内存分析器的池子
+    _MEMORY_PROFILER_POOL = defaultdict(MemoryProfiler)  #: 用来暂存内存分析器的池子
     _memory_profiler = None  # type: MemoryProfiler
 
     @classmethod
     @contextmanager
-    def _get_profiler(cls, self_or_cls, **callargs):
+    def _get_memory_profiler(cls, self_or_cls, **callargs):
         """
         获取内存分析器
 
@@ -65,7 +65,7 @@ class MemoryProfilerMixin(base.ProfilerMixin):
             yield base.proxy(
                 _self_or_cls,
                 prop_name='_memory_profiler',
-                prop=cls._PROFILER_POOL[_name])
+                prop=_self_or_cls._MEMORY_PROFILER_POOL[_name])
 
     @classmethod
     def memory_profiler(cls, name):
@@ -78,9 +78,9 @@ class MemoryProfilerMixin(base.ProfilerMixin):
         :raises KeyError: 获取的键名不存在
         """
         key = base.get_default_key(cls, name)
-        if key not in cls._PROFILER_POOL:
+        if key not in cls._MEMORY_PROFILER_POOL:
             raise KeyError(u'获取的键名({name})不存在！'.format(name=name))
-        return cls._PROFILER_POOL[key]
+        return cls._MEMORY_PROFILER_POOL[key]
 
     @staticmethod
     def profiler_manager(*dargs, **dkwargs):
@@ -112,7 +112,7 @@ class MemoryProfilerMixin(base.ProfilerMixin):
                 callargs.pop("cls", None)
                 name = dkwargs.get('name') or func
                 callargs['_profiler_name'] = base.get_default_key(self_or_cls, name)
-                with self_or_cls._get_profiler(self_or_cls, **callargs) as _self_or_cls:
+                with self_or_cls._get_memory_profiler(self_or_cls, **callargs) as _self_or_cls:
                     profiler_wrapper = _self_or_cls._memory_profiler(func)
                     return profiler_wrapper(_self_or_cls, *args, **kwargs)
             return inner

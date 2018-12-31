@@ -45,12 +45,12 @@ class TimeProfilerMixin(base.ProfilerMixin):
     - 针对需要多次调用的方法进行累加分析的场景
     - 在一次代码执行流程中同时分析多个方法，并灵活控制分析结果的输出
     """
-    _PROFILER_POOL = defaultdict(LineProfiler)  #: 用来暂存时间分析器的池子
+    _TIME_PROFILER_POOL = defaultdict(LineProfiler)  #: 用来暂存时间分析器的池子
     _time_profiler = None  # type: LineProfiler
 
     @classmethod
     @contextmanager
-    def _get_profiler(cls, self_or_cls, **callargs):
+    def _get_time_profiler(cls, self_or_cls, **callargs):
         """
         获取时间分析器
 
@@ -67,7 +67,7 @@ class TimeProfilerMixin(base.ProfilerMixin):
             yield base.proxy(
                 _self_or_cls,
                 prop_name='_time_profiler',
-                prop=cls._PROFILER_POOL[_name])
+                prop=cls._TIME_PROFILER_POOL[_name])
 
     @classmethod
     def time_profiler(cls, name):
@@ -80,9 +80,9 @@ class TimeProfilerMixin(base.ProfilerMixin):
         :raises KeyError: 获取的键名不存在
         """
         key = base.get_default_key(cls, name)
-        if key not in cls._PROFILER_POOL:
+        if key not in cls._TIME_PROFILER_POOL:
             raise KeyError(u'获取的键名({name})不存在！'.format(name=name))
-        return cls._PROFILER_POOL[key]
+        return cls._TIME_PROFILER_POOL[key]
 
     @staticmethod
     def profiler_manager(*dargs, **dkwargs):
@@ -114,7 +114,7 @@ class TimeProfilerMixin(base.ProfilerMixin):
                 callargs.pop("cls", None)
                 name = dkwargs.get('name') or func
                 callargs['_profiler_name'] = base.get_default_key(self_or_cls, name)
-                with self_or_cls._get_profiler(self_or_cls, **callargs) as _self_or_cls:
+                with self_or_cls._get_time_profiler(self_or_cls, **callargs) as _self_or_cls:
                     profiler_wrapper = _self_or_cls._time_profiler(func)
                     return profiler_wrapper(_self_or_cls, *args, **kwargs)
             return inner
