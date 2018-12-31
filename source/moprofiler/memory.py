@@ -40,8 +40,14 @@ class MemoryProfilerMixin(base.ProfilerMixin):
     - 针对需要多次调用的方法进行累加分析的场景
     - 在一次代码执行流程中同时分析多个方法，并灵活控制分析结果的输出
     """
-    _PROFILER_POOL = defaultdict(MemoryProfiler)  #: 用来暂存内存分析器的池子
+    _PROFILER_POOL = defaultdict(_memory_profiler_factory)  #: 用来暂存内存分析器的池子
     _memory_profiler = None  # type: MemoryProfiler
+    MEMORY_PROFILE_BACKEND = 'psutil'
+
+    @staticmethod
+    def _memory_profiler_factory():
+        """内存分析器工厂，用以生成指定 backend 的内存分析器"""
+        return MemoryProfiler(backend=MemoryProfilerMixin.MEMORY_PROFILER_BACKEND)
 
     @classmethod
     @contextmanager
