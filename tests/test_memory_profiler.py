@@ -25,4 +25,4 @@ class TestMemoryProfiler(object):
 
 
 if __name__ == '__main__':
-    print('求和结果: {}'.format(calc_sum()))
+    TestMemoryProfiler.test_memory_profiler()
