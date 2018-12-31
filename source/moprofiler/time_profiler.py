@@ -87,8 +87,8 @@ class TimeProfilerMixin(base.ProfilerMixin):
         with super(TimeProfilerMixin, cls)._get_profiler(
             self_or_cls, **callargs) as _self_or_cls:
             _name = callargs.get('_profiler_name')
-            if not _name:
-                raise RuntimeError('未获取到时间分析器名称！')
+            if not _name:  # pragma: no cover
+                raise RuntimeError(u'未获取到时间分析器名称！')  # pragma: no cover
             yield base.proxy(
                 _self_or_cls,
                 prop_name='_time_profiler',
@@ -106,7 +106,7 @@ class TimeProfilerMixin(base.ProfilerMixin):
         """
         key = base.get_default_key(cls, name)
         if key not in cls._PROFILER_POOL:
-            raise KeyError('获取的键名({name})不存在！'.format(name=name))
+            raise KeyError(u'获取的键名({name})不存在！'.format(name=name))
         return cls._PROFILER_POOL[key]
 
     @staticmethod
