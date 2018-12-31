@@ -10,11 +10,13 @@ from collections import defaultdict
 from contextlib import contextmanager
 from functools import wraps
 
-from memory_profiler import LineProfiler, show_results
+from memory_profiler import LineProfiler, profile, show_results
 
 from . import base
 
 LOG = logging.getLogger(__name__)
+
+memory_profiler = profile  #: 仅为便于和时间分析器命名统一，主要用于简单需求的函数装饰器，函数退出时即打印结果
 
 
 class MemoryProfiler(LineProfiler):
