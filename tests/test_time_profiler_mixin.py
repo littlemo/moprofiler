@@ -5,7 +5,7 @@
 import pytest
 from line_profiler import LineProfiler
 
-from moprofiler.time import TimeProfilerMixin
+from moprofiler import TimeProfilerMixin
 
 
 class QucikSort(TimeProfilerMixin):

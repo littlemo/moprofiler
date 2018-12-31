@@ -4,7 +4,7 @@
 """
 import random
 
-from moprofiler import time
+from moprofiler import time_profiler
 
 
 class TestTimeProfiler(object):
@@ -14,7 +14,7 @@ class TestTimeProfiler(object):
     def test_time_profiler():
         """测试时间分析器装饰器"""
 
-        @time.time_profiler
+        @time_profiler
         def _judge_with_set(x):
             cnt = 0
             tp = {'1', '3', '5', '7', '11'}
@@ -23,7 +23,7 @@ class TestTimeProfiler(object):
                     cnt += 1
             return cnt
 
-        @time.time_profiler
+        @time_profiler
         def _judge_with_list(x):
             cnt = 0
             tp = ['1', '3', '5', '7', '11']
