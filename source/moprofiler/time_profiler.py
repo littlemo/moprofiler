@@ -137,8 +137,8 @@ class TimeProfilerMixin(base.ProfilerMixin):
                 """
                 callargs = base.get_callargs(func, self_or_cls, *args, **kwargs)
                 callargs.pop("cls", None)
-                callargs['_profiler_name'] = dkwargs.get('name') \
-                    or base.get_default_key(self_or_cls, func)
+                name = dkwargs.get('name') or func
+                callargs['_profiler_name'] = base.get_default_key(self_or_cls, name)
                 with self_or_cls._get_profiler(self_or_cls, **callargs) as _self_or_cls:
                     profiler_wrapper = _self_or_cls._time_profiler(func)
                     return profiler_wrapper(_self_or_cls, *args, **kwargs)
