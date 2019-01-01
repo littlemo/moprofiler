@@ -7,7 +7,6 @@ from __future__ import absolute_import
 import logging
 import types  # pylint: disable=W0611
 from collections import defaultdict
-from contextlib import contextmanager
 from functools import wraps
 
 from line_profiler import LineProfiler
@@ -46,56 +45,37 @@ class TimeProfilerMixin(base.ProfilerMixin):
     - 在一次代码执行流程中同时分析多个方法，并灵活控制分析结果的输出
     """
     _TIME_PROFILER_POOL = defaultdict(LineProfiler)  #: 用来暂存时间分析器的池子
-    _time_profiler = None  # type: LineProfiler
 
     @classmethod
-    @contextmanager
-    def _get_time_profiler(cls, self_or_cls, **callargs):
-        """
-        获取时间分析器
-
-        :param object self_or_cls: 被代理的对象 or 类
-        :param dict callargs: 调用该上下文管理器时传入的所有调用参数
-        :return: 返回被代理的对象 or 类
-        :rtype: Iterator[base.Proxy]
-        """
-        with super(TimeProfilerMixin, cls)._get_profiler(
-            self_or_cls, **callargs) as _self_or_cls:
-            _name = callargs.get('_profiler_name')
-            if not _name:  # pragma: no cover
-                raise RuntimeError(u'未获取到时间分析器名称！')  # pragma: no cover
-            yield base.proxy(
-                _self_or_cls,
-                prop_name='_time_profiler',
-                prop=cls._TIME_PROFILER_POOL[_name])
-
-    @classmethod
-    def time_profiler(cls, name):
+    def time_profiler(cls, name, raise_except=True):
         """
         获取指定的时间分析器
 
         :param str name: 指定的时间分析器名称
         :return: 时间分析器对象
+        :param bool raise_except: 若不存在是否抛出异常，默认为是，若为否，则会生成指定名称的分析器并返回
         :rtype: LineProfiler
         :raises KeyError: 获取的键名不存在
         """
         key = base.get_default_key(cls, name)
-        if key not in cls._TIME_PROFILER_POOL:
+        if raise_except and key not in cls._TIME_PROFILER_POOL:
             raise KeyError(u'获取的键名({name})不存在！'.format(name=name))
         return cls._TIME_PROFILER_POOL[key]
 
     @staticmethod
-    def profiler_manager(*dargs, **dkwargs):
+    def profiler_manager(function=None, name=''):
         """
         返回分析器管理下的方法
 
-        :param str name: 关键字参数，被装饰方法代理生成的 _time_profiler 所使用的名称，默认为使用被装饰方法的方法名
+        :param function: 被封装的函数，由解释器自动传入，不需关心
+        :type function: types.FunctionType or types.MethodType
+        :param str name: 关键字参数，被装饰方法所使用的时间分析器名称，默认为使用被装饰方法的方法名
         :return: 装饰后的方法
-        :rtype: types.FunctionType
+        :rtype: types.MethodType
         """
-        invoked = bool(len(dargs) == 1 and not dkwargs and callable(dargs[0]))
+        invoked = bool(function and callable(function))
         if invoked:
-            func = dargs[0]  # type: types.MethodType
+            func = function  # type: types.MethodType
 
         def wrapper(func):
             """
@@ -108,14 +88,13 @@ class TimeProfilerMixin(base.ProfilerMixin):
             @wraps(func)
             def inner(self_or_cls, *args, **kwargs):
                 """
-                将被封装方法所用的 self_or_cls 进行代理，并使用时间分析器对齐进行再封装
+                将被封装方法使用 LineProfiler 进行封装
+
+                :param TimeProfilerMixin self_or_cls:
                 """
-                callargs = base.get_callargs(func, self_or_cls, *args, **kwargs)
-                callargs.pop("cls", None)
-                name = dkwargs.get('name') or func
-                callargs['_profiler_name'] = base.get_default_key(self_or_cls, name)
-                with self_or_cls._get_time_profiler(self_or_cls, **callargs) as _self_or_cls:
-                    profiler_wrapper = _self_or_cls._time_profiler(func)
-                    return profiler_wrapper(_self_or_cls, *args, **kwargs)
+                _name = name or func
+                lp = self_or_cls.time_profiler(_name, raise_except=False)
+                profiler_wrapper = lp(func)
+                return profiler_wrapper(self_or_cls, *args, **kwargs)
             return inner
         return wrapper if not invoked else wrapper(func)
