@@ -38,7 +38,7 @@ class TestTimeAndMemoryProfilerMixin(object):
         tmw = TimeAndMemoryWaste()
         x = tmw.list_waste()
         tmw.dict_waste(x)
-        print('时间分析器暂存池：{}'.format(TimeProfilerMixin._TIME_PROFILER_POOL.keys()))
+        print('\n时间分析器暂存池：{}'.format(TimeProfilerMixin._TIME_PROFILER_POOL.keys()))
         print('内存分析器暂存池：{}'.format(MemoryProfilerMixin._MEMORY_PROFILER_POOL.keys()))
         with pytest.raises(KeyError):
             tmw.memory_profiler('list_waste')

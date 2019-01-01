@@ -55,7 +55,7 @@ class MemoryProfilerMixin(base.ProfilerMixin):
         :param object self_or_cls: 被代理的对象 or 类
         :param dict callargs: 调用该上下文管理器时传入的所有调用参数
         :return: 返回被代理的对象 or 类
-        :rtype: Iterator[object]
+        :rtype: Iterator[base.Proxy]
         """
         with super(MemoryProfilerMixin, cls)._get_profiler(
             self_or_cls, **callargs) as _self_or_cls:
@@ -65,7 +65,7 @@ class MemoryProfilerMixin(base.ProfilerMixin):
             yield base.proxy(
                 _self_or_cls,
                 prop_name='_memory_profiler',
-                prop=_self_or_cls._MEMORY_PROFILER_POOL[_name])
+                prop=cls._MEMORY_PROFILER_POOL[_name])
 
     @classmethod
     def memory_profiler(cls, name):
