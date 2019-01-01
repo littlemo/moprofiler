@@ -17,7 +17,7 @@ LOG = logging.getLogger(__name__)
 
 
 def stopwatch(
-        function=None, print_args=False, logger=None, fmt=None, name='', **dkwargs):
+        function=None, print_args=False, logger=None, fmt='', name='', **dkwargs):
     """
     用于简单需求的秒表装饰器
 
