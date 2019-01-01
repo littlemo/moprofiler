@@ -89,7 +89,7 @@ class MemoryProfilerMixin(base.ProfilerMixin):
 
         :param str name: 关键字参数，被装饰方法代理生成的 _time_profiler 所使用的名称，默认为使用被装饰方法的方法名
         :return: 装饰后的方法
-        :rtype: function
+        :rtype: types.FunctionType
         """
         invoked = bool(len(dargs) == 1 and not dkwargs and callable(dargs[0]))
         if invoked:
