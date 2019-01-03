@@ -211,8 +211,7 @@ class StopwatchMixin(base.ProfilerMixin):
             @wraps(func)
             def inner_function(*args, **kwargs):
                 """
-
-                若被封装方法是一个函数，则直接
+                使用秒表封装函数
                 """
                 _stopwatch_wrapper = Stopwatch()(func, wrap_param)
                 return _stopwatch_wrapper(*args, **kwargs)
@@ -220,7 +219,11 @@ class StopwatchMixin(base.ProfilerMixin):
             @wraps(func)
             def inner_method(self_or_cls, *args, **kwargs):
                 """
-                将被封装方法所用的 self_or_cls 进行代理，并使用时间分析器对齐进行再封装
+                使用秒表封装方法
+
+                将被封装方法所用的 self_or_cls 进行代理，从而在方法内可以访问到被代理的 stopwatch 属性
+
+                :param StopwatchMixin self_or_cls: 秒表 Mixin
                 """
                 callargs = base.get_callargs(func, self_or_cls, *args, **kwargs)
                 callargs.pop("cls", None)

@@ -15,7 +15,7 @@ from . import base
 
 LOG = logging.getLogger(__name__)
 
-memory_profiler = profile  #: 仅为便于和时间分析器命名统一，主要用于简单需求的函数装饰器，函数退出时即打印结果
+memory_profiler = profile  #: 仅为便于和时间分析器命名统一，主要用于简单需求的函数/方法装饰器，函数退出时即打印结果
 
 
 class MemoryProfiler(LineProfiler):
@@ -61,38 +61,38 @@ class MemoryProfilerMixin(base.ProfilerMixin):
         return cls._MEMORY_PROFILER_POOL[key]
 
     @staticmethod
-    def profiler_manager(function=None, name=''):
+    def profiler_manager(method=None, name=''):
         """
         返回分析器管理下的方法
 
-        :param function: 被封装的函数，由解释器自动传入，不需关心
-        :type function: types.FunctionType or types.MethodType
-        :param str name: 关键字参数，被装饰方法所使用的时间分析器名称，默认为使用被装饰方法的方法名
+        :param method: 被封装的方法，由解释器自动传入，不需关心
+        :type method: types.MethodType
+        :param str name: 关键字参数，被装饰方法所使用的内存分析器名称，默认为使用被装饰方法的方法名
         :return: 装饰后的方法
         :rtype: types.MethodType
         """
-        invoked = bool(function and callable(function))
+        invoked = bool(method and callable(method))
         if invoked:
-            func = function  # type: types.MethodType
+            meth = method  # type: types.MethodType
 
-        def wrapper(func):
+        def wrapper(meth):
             """
             装饰器封装函数
 
-            :param types.MethodType func: 被装饰方法
+            :param types.MethodType meth: 被装饰方法
             :return: 封装后的方法
             :rtype: types.MethodType
             """
-            @wraps(func)
+            @wraps(meth)
             def inner(self_or_cls, *args, **kwargs):
                 """
                 将被封装方法使用 LineProfiler 进行封装
 
-                :param MemoryProfilerMixin self_or_cls:
+                :param MemoryProfilerMixin self_or_cls: 内存分析器 Mixin
                 """
-                _name = name or func
+                _name = name or meth
                 lp = self_or_cls.memory_profiler(_name, raise_except=False)
-                profiler_wrapper = lp(func)
+                profiler_wrapper = lp(meth)
                 return profiler_wrapper(self_or_cls, *args, **kwargs)
             return inner
-        return wrapper if not invoked else wrapper(func)
+        return wrapper if not invoked else wrapper(meth)

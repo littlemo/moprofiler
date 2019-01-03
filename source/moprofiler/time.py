@@ -20,10 +20,17 @@ def time_profiler(func):
     """
     用于简单需求的函数装饰器
 
+    该装饰器同时支持装饰函数和方法
+
     逐行分析被装饰函数每行的执行时间，
     此装饰器将在被装饰函数执行结束后将统计结果打印到 stdout 。
     考虑到此装饰器主要用于装饰函数，故设计的尽量简洁，
     更复杂的功能建议使用基于 mixin 的方法装饰器
+
+    :param func: 被装饰的函数或方法
+    :type func: types.FunctionType or types.MethodType
+    :return: 封装后的方法
+    :rtype: types.FunctionType or types.MethodType
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -63,38 +70,38 @@ class TimeProfilerMixin(base.ProfilerMixin):
         return cls._TIME_PROFILER_POOL[key]
 
     @staticmethod
-    def profiler_manager(function=None, name=''):
+    def profiler_manager(method=None, name=''):
         """
         返回分析器管理下的方法
 
-        :param function: 被封装的函数，由解释器自动传入，不需关心
-        :type function: types.FunctionType or types.MethodType
+        :param method: 被封装的方法，由解释器自动传入，不需关心
+        :type method: types.MethodType
         :param str name: 关键字参数，被装饰方法所使用的时间分析器名称，默认为使用被装饰方法的方法名
         :return: 装饰后的方法
         :rtype: types.MethodType
         """
-        invoked = bool(function and callable(function))
+        invoked = bool(method and callable(method))
         if invoked:
-            func = function  # type: types.MethodType
+            meth = method  # type: types.MethodType
 
-        def wrapper(func):
+        def wrapper(meth):
             """
             装饰器封装函数
 
-            :param types.MethodType func: 被装饰方法
+            :param types.MethodType meth: 被装饰方法
             :return: 封装后的方法
             :rtype: types.MethodType
             """
-            @wraps(func)
+            @wraps(meth)
             def inner(self_or_cls, *args, **kwargs):
                 """
                 将被封装方法使用 LineProfiler 进行封装
 
-                :param TimeProfilerMixin self_or_cls:
+                :param TimeProfilerMixin self_or_cls: 时间分析器 Mixin
                 """
-                _name = name or func
+                _name = name or meth
                 lp = self_or_cls.time_profiler(_name, raise_except=False)
-                profiler_wrapper = lp(func)
+                profiler_wrapper = lp(meth)
                 return profiler_wrapper(self_or_cls, *args, **kwargs)
             return inner
-        return wrapper if not invoked else wrapper(func)
+        return wrapper if not invoked else wrapper(meth)
