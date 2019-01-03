@@ -209,16 +209,26 @@ class StopwatchMixin(base.ProfilerMixin):
             :rtype: types.MethodType
             """
             @wraps(func)
-            def inner(self_or_cls, *args, **kwargs):
+            def inner_function(*args, **kwargs):
+                """
+
+                若被封装方法是一个函数，则直接
+                """
+                _stopwatch_wrapper = Stopwatch()(func, wrap_param)
+                return _stopwatch_wrapper(*args, **kwargs)
+
+            @wraps(func)
+            def inner_method(self_or_cls, *args, **kwargs):
                 """
                 将被封装方法所用的 self_or_cls 进行代理，并使用时间分析器对齐进行再封装
                 """
                 callargs = base.get_callargs(func, self_or_cls, *args, **kwargs)
                 callargs.pop("cls", None)
                 with self_or_cls._get_time_profiler(self_or_cls, **callargs) as _self_or_cls:
-                    stopwatch_wrapper = _self_or_cls.stopwatch(func, wrap_param)
-                    return stopwatch_wrapper(_self_or_cls, *args, **kwargs)
-            return inner
+                    _stopwatch_wrapper = _self_or_cls.stopwatch(func, wrap_param)
+                    return _stopwatch_wrapper(_self_or_cls, *args, **kwargs)
+
+            return inner_function if isinstance(func, types.FunctionType) else inner_method
         return wrapper if not invoked else wrapper(func)
 
 
