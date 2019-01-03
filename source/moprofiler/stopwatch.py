@@ -227,7 +227,7 @@ class StopwatchMixin(base.ProfilerMixin):
                 """
                 callargs = base.get_callargs(func, self_or_cls, *args, **kwargs)
                 callargs.pop("cls", None)
-                with self_or_cls._get_time_profiler(self_or_cls, **callargs) as _self_or_cls:
+                with self_or_cls._get_stopwatch(self_or_cls, **callargs) as _self_or_cls:
                     _stopwatch_wrapper = _self_or_cls.stopwatch(func, wrap_param)
                     return _stopwatch_wrapper(_self_or_cls, *args, **kwargs)
 
