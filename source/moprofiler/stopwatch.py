@@ -202,74 +202,71 @@ class StopwatchMixin(base.ProfilerMixin):
                 prop_name='stopwatch',
                 prop=Stopwatch())
 
-    @staticmethod
-    def stopwatch_manager(  # pylint: disable=R0913
-            function=None, print_args=False, logger=None,
-            fmt='', name='', logging_level=logging.INFO, **dkwargs):
+
+def stopwatch(  # pylint: disable=R0913
+        function=None, print_args=False, logger=None,
+        fmt='', name='', logging_level=logging.INFO, **dkwargs):
+    """
+    返回秒表监控下的函数或方法
+
+    通过额外的关键字参数，支持配置自定义的值到输出模板中
+
+    :param function: 被封装的函数，由解释器自动传入，不需关心
+    :type function: types.FunctionType or types.MethodType
+    :param bool print_args: 是否打印被装饰函数的参数列表，若含有较长的参数，可能造成日志过长，开启时请注意
+    :param logging.Logger logger: 可传入指定的日志对象，便于统一输出样式，默认使用该模块中的全局 logger
+    :param str fmt: 用于格式化输出的模板，可在了解所有内置参数变量后自行定制输出样式，若指定该参数则会忽略 print_args
+    :param str name: 关键字参数，被装饰方法代理生成的 _stopwatch 所使用的名称，默认为使用被装饰方法的方法名
+    :param int logging_level: 打印日志的级别，默认为 INFO
+    :return: 装饰后的函数
+    :rtype: types.FunctionType or types.MethodType
+    """
+    invoked = bool(function and callable(function))
+    if invoked:
+        func = function  # type: types.FunctionType or types.MethodType
+    wrap_param = {
+        'print_args': print_args,
+        'logger': logger,
+        'fmt': fmt,
+        'name': name,
+        'logging_level': logging_level,
+        'dkwargs': dkwargs,
+    }
+
+    def wrapper(func):
         """
-        返回秒表监控下的函数或方法
+        装饰器封装函数
 
-        通过额外的关键字参数，支持配置自定义的值到输出模板中
-
-        :param function: 被封装的函数，由解释器自动传入，不需关心
-        :type function: types.FunctionType or types.MethodType
-        :param bool print_args: 是否打印被装饰函数的参数列表，若含有较长的参数，可能造成日志过长，开启时请注意
-        :param logging.Logger logger: 可传入指定的日志对象，便于统一输出样式，默认使用该模块中的全局 logger
-        :param str fmt: 用于格式化输出的模板，可在了解所有内置参数变量后自行定制输出样式，若指定该参数则会忽略 print_args
-        :param str name: 关键字参数，被装饰方法代理生成的 _stopwatch 所使用的名称，默认为使用被装饰方法的方法名
-        :param int logging_level: 打印日志的级别，默认为 INFO
-        :return: 装饰后的函数
-        :rtype: types.FunctionType or types.MethodType
+        :param types.MethodType func: 被装饰方法
+        :return: 封装后的方法
+        :rtype: types.MethodType
         """
-        invoked = bool(function and callable(function))
-        if invoked:
-            func = function  # type: types.FunctionType or types.MethodType
-        wrap_param = {
-            'print_args': print_args,
-            'logger': logger,
-            'fmt': fmt,
-            'name': name,
-            'logging_level': logging_level,
-            'dkwargs': dkwargs,
-        }
-
-        def wrapper(func):
+        @wraps(func)
+        def inner_function(*args, **kwargs):
             """
-            装饰器封装函数
-
-            :param types.MethodType func: 被装饰方法
-            :return: 封装后的方法
-            :rtype: types.MethodType
+            使用秒表封装函数
             """
-            @wraps(func)
-            def inner_function(*args, **kwargs):
-                """
-                使用秒表封装函数
-                """
-                _stopwatch_wrapper = Stopwatch()(func, wrap_param)
-                return _stopwatch_wrapper(*args, **kwargs)
+            _stopwatch_wrapper = Stopwatch()(func, wrap_param)
+            return _stopwatch_wrapper(*args, **kwargs)
 
-            @wraps(func)
-            def inner_method(self_or_cls, *args, **kwargs):
-                """
-                使用秒表封装方法
+        @wraps(func)
+        def inner_method(self_or_cls, *args, **kwargs):
+            """
+            使用秒表封装方法
 
-                将被封装方法所用的 self_or_cls 进行代理，从而在方法内可以访问到被代理的 stopwatch 属性
+            将被封装方法所用的 self_or_cls 进行代理，从而在方法内可以访问到被代理的 stopwatch 属性
 
-                :param StopwatchMixin self_or_cls: 秒表 Mixin
-                """
-                if not base.is_instance_or_subclass(self_or_cls, StopwatchMixin):
-                    # 若当前被装饰的方法未继承 StopwatchMixin ，则将其作为普通函数装饰
-                    return inner_function(self_or_cls, *args, **kwargs)
+            :param StopwatchMixin self_or_cls: 秒表 Mixin
+            """
+            if not base.is_instance_or_subclass(self_or_cls, StopwatchMixin):
+                # 若当前被装饰的方法未继承 StopwatchMixin ，则将其作为普通函数装饰
+                return inner_function(self_or_cls, *args, **kwargs)
 
-                callargs = base.get_callargs(func, self_or_cls, *args, **kwargs)
-                callargs.pop("cls", None)
-                with self_or_cls._get_stopwatch(self_or_cls, **callargs) as _self_or_cls:
-                    _stopwatch_wrapper = _self_or_cls.stopwatch(func, wrap_param)
-                    return _stopwatch_wrapper(_self_or_cls, *args, **kwargs)
+            callargs = base.get_callargs(func, self_or_cls, *args, **kwargs)
+            callargs.pop("cls", None)
+            with self_or_cls._get_stopwatch(self_or_cls, **callargs) as _self_or_cls:
+                _stopwatch_wrapper = _self_or_cls.stopwatch(func, wrap_param)
+                return _stopwatch_wrapper(_self_or_cls, *args, **kwargs)
 
-            return inner_function if isinstance(func, types.FunctionType) else inner_method
-        return wrapper if not invoked else wrapper(func)
-
-
-stopwatch = StopwatchMixin.stopwatch_manager
+        return inner_function if isinstance(func, types.FunctionType) else inner_method
+    return wrapper if not invoked else wrapper(func)
