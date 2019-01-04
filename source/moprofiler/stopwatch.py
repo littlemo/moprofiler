@@ -258,6 +258,10 @@ class StopwatchMixin(base.ProfilerMixin):
 
                 :param StopwatchMixin self_or_cls: 秒表 Mixin
                 """
+                if not base.is_instance_or_subclass(self_or_cls, StopwatchMixin):
+                    # 若当前被装饰的方法未继承 StopwatchMixin ，则将其作为普通函数装饰
+                    return inner_function(self_or_cls, *args, **kwargs)
+
                 callargs = base.get_callargs(func, self_or_cls, *args, **kwargs)
                 callargs.pop("cls", None)
                 with self_or_cls._get_stopwatch(self_or_cls, **callargs) as _self_or_cls:

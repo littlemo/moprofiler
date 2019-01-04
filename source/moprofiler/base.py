@@ -81,6 +81,20 @@ def get_default_key(self_or_cls, func):
     return '-'.join(key_list)
 
 
+def is_instance_or_subclass(self_or_cls, super_cls):
+    """
+    判断对象或类是否继承了指定类
+
+    :param object self_or_cls: 对象或类
+    :param class super_cls: 父类
+    :return: 判断结果
+    :rtype: bool
+    """
+    return (
+        isinstance(self_or_cls, super_cls) or
+        (isinstance(self_or_cls, type) and issubclass(self_or_cls, super_cls)))
+
+
 class ProfilerMixin(object):
     """
     分析器 Mixin 的基类
