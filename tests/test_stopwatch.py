@@ -1,6 +1,6 @@
 # encoding=utf8
 """
-测试时间分析器
+测试秒表装饰器
 """
 import logging
 import random
