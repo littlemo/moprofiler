@@ -71,7 +71,7 @@ class Stopwatch(object):
         :param list args: 被装饰函数被调用时的位置参数
         :param dict kwargs: 被装饰函数被调用时的关键字参数
         """
-        self.name = self.name or func.__name__,
+        self.name = self.name or func.__name__
         _begin_time = time.time()
         fmt_dict = {
             'name': self.name,
