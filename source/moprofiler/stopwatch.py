@@ -26,10 +26,12 @@ class Stopwatch(object):
 
     def __init__(self):
         self.buf = []  #: 用来存储计时打点时间
+        self.name = ''  #: 秒表的名称，可在装饰时设置，默认为使用被装饰方法的方法名
         self.dkwargs = {}  #: 用来存储最终输出时使用的变量
         self.dotting_param_pre = {}  #: 用来记录上次打点输出时的参数信息
         self.logger = None  #: 用来日志输出的 logger  # type: logging.Logger
         self.logging_level = None  #: 日志输出级别
+        self.final_fmt = ''  #: 输出最终计时结果的字符串模板
 
     def __call__(self, func, wrap_param):
         """
@@ -47,29 +49,78 @@ class Stopwatch(object):
             wrapper = self.wrap_function(func, wrap_param)
         return wrapper
 
-    def wrap_generator(self, func, dkwargs):
+    def _init_param(self, wrap_param):
+        """
+        初始化对象属性
+
+        :param dict wrap_param: 封装时传入的参数字典
+        """
+        self.name = wrap_param.get('name')
+        self.logger = wrap_param.get('logger') or LOG  # type: logging.Logger
+        self.logging_level = wrap_param.get('logging_level') or self.LOGGING_LEVEL_DEFAULT
+        self.final_fmt = wrap_param.get('fmt') or (
+            self.FINAL_FMT_ARGS_DEFAULT if wrap_param.get('print_args') else self.FINAL_FMT_DEFAULT)
+        self.dkwargs = wrap_param.get('dkwargs')
+
+    def _start(self, func, args, kwargs):
+        """
+        启动秒表
+
+        :param func: 被封装的函数，由解释器自动传入，不需关心
+        :type func: types.FunctionType or types.MethodType
+        :param list args: 被装饰函数被调用时的位置参数
+        :param dict kwargs: 被装饰函数被调用时的关键字参数
+        """
+        self.name = self.name or func.__name__,
+        _begin_time = time.time()
+        fmt_dict = {
+            'name': self.name,
+            'args': args,
+            'kwargs': kwargs,
+            'begin_time': _begin_time,
+        }
+        self.dkwargs.update(fmt_dict)
+        self.buf.append(_begin_time)
+
+    def _end(self):
+        """
+        结束秒表
+        """
+        _end_time = time.time()
+        self.buf.append(_end_time)
+        self.dkwargs['end_time'] = _end_time
+        self.dkwargs['use'] = _end_time - self.dkwargs['begin_time']
+
+    def wrap_generator(self, func, wrap_param):
         """
         封装一个生成器从而使用秒表对其进行观察
+
+        :param func: 被封装的函数，由解释器自动传入，不需关心
+        :type func: types.FunctionType or types.MethodType
+        :param dict wrap_param: 封装时传入的参数字典
+        :return: 封装后的方法
+        :rtype: types.FunctionType or types.MethodType
         """
+        self._init_param(wrap_param)
+
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def inner(*args, **kwargs):
+            """
+            在被装饰函数执行前后进行秒表计时
+            """
+            self._start(func, args, kwargs)
+
             g = func(*args, **kwargs)
-            # The first iterate will not be a .send()
-            self.enable_by_count()
-            try:
-                item = next(g)
-            finally:
-                self.disable_by_count()
-            input = (yield item)
-            # But any following one might be.
+            # 第一次迭代将不调用 send()
+            item = next(g)
+            _input = (yield item)
             while True:
-                self.enable_by_count()
-                try:
-                    item = g.send(input)
-                finally:
-                    self.disable_by_count()
-                input = (yield item)
-        return wrapper
+                item = g.send(_input)
+                _input = (yield item)
+
+            self._end()
+            self.logger.log(self.logging_level, self.final_fmt.format(**self.dkwargs))
+        return inner
 
     def wrap_function(self, func, wrap_param):
         """
@@ -77,39 +128,21 @@ class Stopwatch(object):
 
         :param func: 被封装的函数，由解释器自动传入，不需关心
         :type func: types.FunctionType or types.MethodType
+        :param dict wrap_param: 封装时传入的参数字典
         :return: 封装后的方法
         :rtype: types.FunctionType or types.MethodType
         """
-        self.logger = wrap_param.get('logger') or LOG  # type: logging.Logger
-        self.logging_level = wrap_param.get('logging_level') or self.LOGGING_LEVEL_DEFAULT
-        _fmt = wrap_param.get('fmt') or (
-            self.FINAL_FMT_ARGS_DEFAULT if wrap_param.get('print_args') else self.FINAL_FMT_DEFAULT)
-        self.dkwargs = wrap_param.get('dkwargs')
+        self._init_param(wrap_param)
 
         @wraps(func)
         def inner(*args, **kwargs):
             """
             在被装饰函数执行前后进行秒表计时
             """
-            _begin_time = time.time()
-            fmt_dict = {
-                'name': wrap_param.get('name') or func.__name__,
-                'args': args,
-                'kwargs': kwargs,
-                'begin_time': _begin_time,
-            }
-            self.dkwargs.update(fmt_dict)
-
-            self.buf.append(_begin_time)
+            self._start(func, args, kwargs)
             result = func(*args, **kwargs)
-            _end_time = time.time()
-            self.buf.append(_end_time)
-
-            fmt_dict['end_time'] = _end_time
-            fmt_dict['use'] = _end_time - _begin_time
-            self.dkwargs.update(fmt_dict)
-
-            self.logger.log(self.logging_level, _fmt.format(**self.dkwargs))
+            self._end()
+            self.logger.log(self.logging_level, self.final_fmt.format(**self.dkwargs))
             return result
         return inner
 
