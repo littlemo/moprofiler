@@ -20,6 +20,7 @@ MoProfiler
    module/memory
    module/stopwatch
    module/base
+   module/shortcut
 
 
 索引表
