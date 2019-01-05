@@ -13,7 +13,7 @@ from moprofiler import (MemoryProfilerMixin, StopwatchMixin, TimeProfilerMixin,
 
 class MultiMixin(MemoryProfilerMixin, TimeProfilerMixin, StopwatchMixin):
     """
-    浪费时间&内存
+    混合 Mixin
     """
     # 不支持同时监控一个方法的时间&内存，最终会变成外层装饰器监控内层装饰器中的代码
     @memory_profiler(name='wuwuwu')
@@ -40,11 +40,11 @@ class MultiMixin(MemoryProfilerMixin, TimeProfilerMixin, StopwatchMixin):
         self.stopwatch.dotting()
 
 
-class TestTimeAndMemoryProfilerMixin(object):
+class TestMultiMixin(object):
     """测试用于装饰方法的内存分析器"""
 
     @staticmethod
-    def test_time_and_memory_profiler_mixin():
+    def test_multi_mixin():
         """测试内存分析器的 mixin"""
         mm = MultiMixin()
         x = mm.list_waste()
