@@ -216,7 +216,7 @@ def stopwatch(
 
     通过额外的关键字参数，支持配置自定义的值到输出模板中
 
-    :param _function: 被封装的函数，由解释器自动传入，不需关心
+    :param _function: 被封装的对象，由解释器自动传入，不需关心
     :type _function: types.FunctionType or types.MethodType
     :param bool print_args: 是否打印被装饰函数的参数列表，若含有较长的参数，可能造成日志过长，开启时请注意
     :param logging.Logger logger: 可传入指定的日志对象，便于统一输出样式，默认使用该模块中的全局 logger

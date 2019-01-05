@@ -72,7 +72,7 @@ def memory_profiler(
     """
     内存分析器装饰器
 
-    :param _function: 被封装的方法，由解释器自动传入，不需关心
+    :param _function: 被封装的对象，由解释器自动传入，不需关心
     :type _function: types.FunctionType or types.MethodType
     :param str name: 关键字参数，被装饰方法所使用的内存分析器名称，默认为使用被装饰方法的方法名
     :param bool print_res: 是否在被装饰对象退出后立刻打印分析结果，默认为 True 。
