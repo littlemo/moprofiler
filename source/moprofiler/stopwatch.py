@@ -28,7 +28,7 @@ class Stopwatch(object):
         self.buf = []  #: 用来存储计时打点时间
         self.name = ''  #: 秒表的名称，可在装饰时设置，默认为使用被装饰方法的方法名
         self.dkwargs = {}  #: 用来存储最终输出时使用的变量
-        self.dotting_param_pre = {}  #: 用来记录上次打点输出时的参数信息
+        self.dotting_param_pre = {'kwargs': {}}  #: 用来记录上次打点输出时的参数信息
         self.logger = None  #: 用来日志输出的 logger  # type: logging.Logger
         self.logging_level = None  #: 日志输出级别
         self.final_fmt = ''  #: 输出最终计时结果的字符串模板
@@ -250,23 +250,24 @@ def stopwatch(  # pylint: disable=R0913
             return _stopwatch_wrapper(*args, **kwargs)
 
         @wraps(func)
-        def inner_method(self_or_cls, *args, **kwargs):
+        def inner_method(*args, **kwargs):
             """
             使用秒表封装方法
 
             将被封装方法所用的 self_or_cls 进行代理，从而在方法内可以访问到被代理的 stopwatch 属性
 
-            :param StopwatchMixin self_or_cls: 秒表 Mixin
+            :param list args: 位置参数
             """
-            if not base.is_instance_or_subclass(self_or_cls, StopwatchMixin):
+            if not (args and base.is_instance_or_subclass(args[0], StopwatchMixin)):
                 # 若当前被装饰的方法未继承 StopwatchMixin ，则将其作为普通函数装饰
-                return inner_function(self_or_cls, *args, **kwargs)
+                return inner_function(*args, **kwargs)
 
-            callargs = base.get_callargs(func, self_or_cls, *args, **kwargs)
+            self_or_cls = args[0]  # type: StopwatchMixin
+            callargs = base.get_callargs(func, *args, **kwargs)
             callargs.pop("cls", None)
             with self_or_cls._get_stopwatch(self_or_cls, **callargs) as _self_or_cls:
                 _stopwatch_wrapper = _self_or_cls.stopwatch(func, wrap_param)
-                return _stopwatch_wrapper(_self_or_cls, *args, **kwargs)
+                return _stopwatch_wrapper(_self_or_cls, *args[1:], **kwargs)
 
-        return inner_function if isinstance(func, types.FunctionType) else inner_method
+        return inner_method
     return wrapper if not invoked else wrapper(func)
