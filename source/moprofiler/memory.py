@@ -42,9 +42,10 @@ class MemoryProfilerMixin(base.ProfilerMixin):
     """
     内存分析器 Mixin 类
 
-    用以提供复杂的内存分析功能，如：
-    - 针对需要多次调用的方法进行累加分析的场景
-    - 在一次代码执行流程中同时分析多个方法，并灵活控制分析结果的输出
+    用以提供复杂的内存分析功能，如:
+
+    #. 针对需要多次调用的方法进行累加分析的场景
+    #. 在一次代码执行流程中同时分析多个方法，并灵活控制分析结果的输出
     """
     # 此处若想修改 backend 可通过继承该 mixin 并修改 defaultdict 中的默认值来实现
     _MEMORY_PROFILER_POOL = defaultdict(MemoryProfiler)  #: 用来暂存内存分析器的池子
