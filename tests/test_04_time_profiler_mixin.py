@@ -51,7 +51,7 @@ class TestTimeProfilerMixin(object):
     @staticmethod
     def test_time_profiler_mixin():
         """测试时间分析器的 mixin"""
-        unsort_list = [3, 12, 12, 11, 15, 9, 12, 4, 15, 4, 2, 15, 7, 10, 12]
+        unsort_list = [3, 12, 12, 11, 15, 9, 12, 4, 15, 4, 2, 15, 7, 10, 12, 2, 3, 1, 14, 5, 7]
         print('\n乱序列表：{}'.format(unsort_list))
         qs = QucikSort(unsort_list)
         qs.sort()
@@ -64,3 +64,7 @@ class TestTimeProfilerMixin(object):
         # qs.time_profiler('quick_sort').print_stats()
         qs.time_profiler('partition').print_stats()
         # qs.time_profiler('swap').print_stats()
+
+
+if __name__ == '__main__':
+    TestTimeProfilerMixin.test_time_profiler_mixin()
