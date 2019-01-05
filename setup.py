@@ -44,7 +44,7 @@ setup(
     maintainer='littlemo',
     maintainer_email='moore@moorehy.com',
     version=get_setup_version(),
-    description='综合性能分析工具，集成了内存使用与执行时间的分析器',
+    description='综合性能分析工具，集成了内存使用、执行时间的分析器，及秒表打点工具',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     keywords='moprofiler profiler tool memory time',
