@@ -25,7 +25,7 @@ class QucikSort(TimeProfilerMixin):
             self.sort(left, partition_index - 1)
             self.sort(partition_index + 1, right)
 
-    @time_profiler(print_res=False)
+    @time_profiler
     def partition(self, left, right):
         """分区"""
         pivot = left

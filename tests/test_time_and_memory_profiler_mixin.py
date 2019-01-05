@@ -2,14 +2,16 @@
 """
 测试时间&内存分析器 Mixin 的共用
 """
+import time
+
 import pytest
 from line_profiler import LineProfiler as TimeLineProfiler
 
-from moprofiler import (MemoryProfilerMixin, TimeProfilerMixin,
-                        memory_profiler, time_profiler)
+from moprofiler import (MemoryProfilerMixin, StopwatchMixin, TimeProfilerMixin,
+                        memory_profiler, stopwatch, time_profiler)
 
 
-class TimeAndMemoryWaste(MemoryProfilerMixin, TimeProfilerMixin):
+class MultiMixin(MemoryProfilerMixin, TimeProfilerMixin, StopwatchMixin):
     """
     浪费时间&内存
     """
@@ -29,6 +31,14 @@ class TimeAndMemoryWaste(MemoryProfilerMixin, TimeProfilerMixin):
             ret[i] = i
         return ret
 
+    @stopwatch
+    def orz_instancemethod(self, x):
+        """实例方法"""
+        for _i in range(x):
+            self.stopwatch.dotting()
+            time.sleep(0.1)
+        self.stopwatch.dotting()
+
 
 class TestTimeAndMemoryProfilerMixin(object):
     """测试用于装饰方法的内存分析器"""
@@ -36,17 +46,18 @@ class TestTimeAndMemoryProfilerMixin(object):
     @staticmethod
     def test_time_and_memory_profiler_mixin():
         """测试内存分析器的 mixin"""
-        tmw = TimeAndMemoryWaste()
-        x = tmw.list_waste()
-        tmw.dict_waste(x)
+        mm = MultiMixin()
+        x = mm.list_waste()
+        mm.dict_waste(x)
+        mm.orz_instancemethod(5)
         print('\n时间分析器暂存池：{}'.format(TimeProfilerMixin._TIME_PROFILER_POOL.keys()))
         print('内存分析器暂存池：{}'.format(MemoryProfilerMixin._MEMORY_PROFILER_POOL.keys()))
         with pytest.raises(KeyError):
-            tmw.memory_profiler('list_waste')
-        assert isinstance(tmw.time_profiler('dict_waste'), TimeLineProfiler)
+            mm.memory_profiler('list_waste')
+        assert isinstance(mm.time_profiler('dict_waste'), TimeLineProfiler)
 
-        tmw.memory_profiler('wuwuwu').print_stats()
-        tmw.time_profiler('dict_waste').print_stats()
+        mm.memory_profiler('wuwuwu').print_stats()
+        mm.time_profiler('dict_waste').print_stats()
 
 
 if __name__ == '__main__':
