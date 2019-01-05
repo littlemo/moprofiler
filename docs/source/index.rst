@@ -19,6 +19,7 @@ MoProfiler
    module/time
    module/memory
    module/stopwatch
+   module/base
 
 
 索引表
