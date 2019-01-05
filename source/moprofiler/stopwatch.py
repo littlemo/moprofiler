@@ -147,20 +147,24 @@ class Stopwatch(object):
             return result
         return inner
 
-    def dotting(self, fmt='', logging_level=None, **kwargs):
+    def dotting(self, fmt='', logging_level=None, mute=False, **kwargs):
         """
         输出打点日志
 
-        该方法的全部参数若不传则使用历史值
+        该方法除 mute 外的其余参数若不传则使用历史值
 
         :param str fmt: 用来输出打点日志的格式化模板，需使用 format 的占位符格式
         :param int logging_level: 日志输出级别，默认使用装饰当前方法时设置的级别，若无则使用类属性中定义的默认值
+        :param bool mute: 静默打点，默认为 False ，若设为 True ，则当次仅记录时间，不执行任何输出逻辑
         """
-        idx = len(self.buf)
         self.buf.append(time.time())
-        _fmt = fmt or self.dotting_param_pre.get('fmt') or self.DOTTING_FMT_DEFAULT
-        _level = logging_level or self.dotting_param_pre.get('logging_level') or self.logging_level
+        if mute:
+            return
+
+        idx = len(self.buf) - 1
         _kwargs = self.dotting_param_pre.get('kwargs', {})  # type: dict
+        _fmt = fmt or _kwargs.get('fmt') or self.DOTTING_FMT_DEFAULT
+        _level = logging_level or _kwargs.get('logging_level') or self.logging_level
         if not _kwargs:
             _kwargs.update(self.dkwargs)
         _kwargs.update(kwargs)

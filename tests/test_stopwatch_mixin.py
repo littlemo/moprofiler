@@ -14,17 +14,18 @@ LOG = logging.getLogger(__name__)
 
 
 class zzz(StopwatchMixin):
-    """测试类装饰"""
+    """测试方法装饰"""
 
     @staticmethod
     @stopwatch
     def orz_staticmethod():
-        """测试对象方法装饰"""
+        """静态方法"""
         for _i in range(2):
             time.sleep(0.25)
 
     @stopwatch
     def orz_instancemethod(self, x):
+        """实例方法"""
         for _i in range(x):
             self.stopwatch.dotting()
             time.sleep(0.1)
@@ -37,6 +38,7 @@ class zzz(StopwatchMixin):
         name='hakula',
         foo='matata')
     def orz_classmethod(cls, x):
+        """类方法"""
         for _i in range(x):
             cls.stopwatch.dotting('定制打点输出{idx}，当前 {current:.8f}s，累计: {total:.8f}s')
             time.sleep(0.1)
@@ -44,11 +46,20 @@ class zzz(StopwatchMixin):
 
     @stopwatch
     def orz_instancemethod_generator(self, x):
+        """实例方法生成器"""
         for _i in range(x):
-            self.stopwatch.dotting()
+            mute = True if _i == 2 else False
+            self.stopwatch.dotting(mute=mute)
             time.sleep(0.1)
             yield _i
         self.stopwatch.dotting()
+
+
+@stopwatch
+def orz_function():
+    """函数"""
+    for _i in range(2):
+        time.sleep(0.25)
 
 
 class TestStopwatch(object):
@@ -65,6 +76,7 @@ class TestStopwatch(object):
         zzz.orz_classmethod(5)
         _tmp = [i for i in z.orz_instancemethod_generator(5)]
         assert _tmp == range(5)
+        orz_function()
 
 
 if __name__ == '__main__':
