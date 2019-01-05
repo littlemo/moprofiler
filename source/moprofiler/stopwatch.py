@@ -114,12 +114,13 @@ class Stopwatch(object):
             # 第一次迭代将不调用 send()
             item = next(g)
             _input = (yield item)
-            while True:
-                item = g.send(_input)
-                _input = (yield item)
-
-            self._end()
-            self.logger.log(self.logging_level, self.final_fmt.format(**self.dkwargs))
+            try:
+                while True:
+                    item = g.send(_input)
+                    _input = (yield item)
+            except StopIteration:
+                self._end()
+                self.logger.log(self.logging_level, self.final_fmt.format(**self.dkwargs))
         return inner
 
     def wrap_function(self, func, wrap_param):

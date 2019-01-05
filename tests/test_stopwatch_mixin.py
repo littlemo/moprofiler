@@ -42,6 +42,14 @@ class zzz(StopwatchMixin):
             time.sleep(0.1)
         cls.stopwatch.dotting()
 
+    @stopwatch
+    def orz_instancemethod_generator(self, x):
+        for _i in range(x):
+            self.stopwatch.dotting()
+            time.sleep(0.1)
+            yield _i
+        self.stopwatch.dotting()
+
 
 class TestStopwatch(object):
     """测试用于装饰函数的秒表"""
@@ -54,6 +62,9 @@ class TestStopwatch(object):
         zzz.orz_staticmethod()
         z.orz_instancemethod(10)
         z.orz_classmethod(10)
+        zzz.orz_classmethod(5)
+        _tmp = [i for i in z.orz_instancemethod_generator(5)]
+        assert _tmp == range(5)
 
 
 if __name__ == '__main__':
