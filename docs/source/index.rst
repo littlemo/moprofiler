@@ -17,6 +17,7 @@ MoProfiler
    :caption: 模块文档
 
    module/time
+   module/memory
 
 
 索引表
