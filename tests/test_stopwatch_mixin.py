@@ -3,7 +3,6 @@
 测试秒表 Mixin
 """
 import logging
-import random
 import time
 
 from moprofiler import StopwatchMixin, stopwatch
@@ -19,20 +18,17 @@ class zzz(StopwatchMixin):
 
     @staticmethod
     @stopwatch
-    def orz():
+    def orz_staticmethod():
         """测试对象方法装饰"""
         for _i in range(2):
-            time.sleep(0.5)
+            time.sleep(0.25)
 
     @stopwatch
-    def judge_with_set(self, x):
-        cnt = 0
-        tp = {'1', '3', '5', '7', '11'}
-        for i in x:
+    def orz_instancemethod(self, x):
+        for _i in range(x):
             self.stopwatch.dotting()
-            if i in tp:
-                cnt += 1
-        return cnt
+            time.sleep(0.1)
+        self.stopwatch.dotting()
 
     @classmethod
     @stopwatch(
@@ -40,15 +36,11 @@ class zzz(StopwatchMixin):
         logger=LOG,
         name='hakula',
         foo='matata')
-    def judge_with_list(cls, x):
-        cnt = 0
-        tp = ['1', '3', '5', '7', '11']
-        for i in x:
+    def orz_classmethod(cls, x):
+        for _i in range(x):
             cls.stopwatch.dotting('定制打点输出{idx}，当前 {current:.8f}s，累计: {total:.8f}s')
-            if i in tp:
-                cnt += 1
+            time.sleep(0.1)
         cls.stopwatch.dotting()
-        return cnt
 
 
 class TestStopwatch(object):
@@ -57,12 +49,11 @@ class TestStopwatch(object):
     @staticmethod
     def test_stopwatch():
         """测试秒表装饰器"""
-        random_list = [random.choice(['2', '11']) for _x in range(5)]
         z = zzz()
-        ret_set = z.judge_with_set(random_list)
-        ret_list = z.judge_with_list(random_list)
-        assert ret_set == ret_list
-        zzz().orz()
+        z.orz_staticmethod()
+        zzz.orz_staticmethod()
+        z.orz_instancemethod(10)
+        z.orz_classmethod(10)
 
 
 if __name__ == '__main__':
