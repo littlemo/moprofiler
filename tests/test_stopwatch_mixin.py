@@ -75,7 +75,7 @@ class TestStopwatch(object):
         z.orz_classmethod(10)
         zzz.orz_classmethod(5)
         _tmp = [i for i in z.orz_instancemethod_generator(5)]
-        assert _tmp == range(5)
+        assert _tmp == [i for i in range(5)]
         orz_function()
 
 

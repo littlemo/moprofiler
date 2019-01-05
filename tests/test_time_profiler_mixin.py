@@ -15,7 +15,7 @@ class QucikSort(TimeProfilerMixin):
     def __init__(self, arr):
         self.arr = arr
 
-    @time_profiler(name='quick_sort')
+    @time_profiler(name='quick_sort', print_res=False)
     def sort(self, left=None, right=None):
         """排序"""
         left = 0 if not isinstance(left, (int, float)) else left
@@ -25,7 +25,7 @@ class QucikSort(TimeProfilerMixin):
             self.sort(left, partition_index - 1)
             self.sort(partition_index + 1, right)
 
-    @time_profiler
+    @time_profiler(print_res=False)
     def partition(self, left, right):
         """分区"""
         pivot = left
