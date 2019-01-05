@@ -1,6 +1,39 @@
 # encoding=utf8
-from setuptools import setup, find_packages
-from source.moprofiler.version import get_setup_version
+from __future__ import unicode_literals
+
+from setuptools import find_packages, setup
+
+VERSION_SUFFIX_DEV = 'dev'
+VERSION_SUFFIX_POST = 'post'
+VERSION_SUFFIX_ALPHA = 'a'
+VERSION_SUFFIX_BETA = 'b'
+VERSION_SUFFIX_RC = 'rc'
+VERSION_SUFFIX_NONE = None
+
+VERSION = (1, 0, 0, VERSION_SUFFIX_BETA, 0)
+
+
+def get_setup_version():
+    """
+    获取打包使用的版本号，符合 PYPI 官方推荐的版本号方案
+
+    :return: PYPI 打包版本号
+    :rtype: str
+    """
+    ver = '.'.join(map(str, VERSION[:3]))
+
+    # 若后缀描述字串为 None ，则直接返回主版本号
+    if not VERSION[3]:
+        return ver
+
+    # 否则，追加版本号后缀
+    hyphen = ''
+    suffix = hyphen.join(map(str, VERSION[-2:]))
+    if VERSION[3] in [VERSION_SUFFIX_DEV, VERSION_SUFFIX_POST]:
+        hyphen = '.'
+    ver = hyphen.join([ver, suffix])
+
+    return ver
 
 
 setup(
@@ -28,8 +61,10 @@ setup(
     },
     install_requires=open('requirements/pip.txt').read().splitlines(),
     entry_points={},
+
+    # https://pypi.org/classifiers/
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 4 - Beta',
         'Environment :: Console',
         'Environment :: MacOS X',
         'Intended Audience :: Developers',
