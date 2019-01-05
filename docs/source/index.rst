@@ -18,6 +18,7 @@ MoProfiler
 
    module/time
    module/memory
+   module/stopwatch
 
 
 索引表
