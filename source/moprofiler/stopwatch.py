@@ -208,16 +208,16 @@ class StopwatchMixin(base.ProfilerMixin):
                 prop=Stopwatch())
 
 
-def stopwatch(  # pylint: disable=R0913
-        function=None, print_args=False, logger=None,
+def stopwatch(
+        _function=None, print_args=False, logger=None,
         fmt='', name='', logging_level=logging.INFO, **dkwargs):
     """
     返回秒表监控下的函数或方法
 
     通过额外的关键字参数，支持配置自定义的值到输出模板中
 
-    :param function: 被封装的函数，由解释器自动传入，不需关心
-    :type function: types.FunctionType or types.MethodType
+    :param _function: 被封装的函数，由解释器自动传入，不需关心
+    :type _function: types.FunctionType or types.MethodType
     :param bool print_args: 是否打印被装饰函数的参数列表，若含有较长的参数，可能造成日志过长，开启时请注意
     :param logging.Logger logger: 可传入指定的日志对象，便于统一输出样式，默认使用该模块中的全局 logger
     :param str fmt: 用于格式化输出的模板，可在了解所有内置参数变量后自行定制输出样式，若指定该参数则会忽略 print_args
@@ -226,9 +226,9 @@ def stopwatch(  # pylint: disable=R0913
     :return: 装饰后的函数
     :rtype: types.FunctionType or types.MethodType
     """
-    invoked = bool(function and callable(function))
+    invoked = bool(_function and callable(_function))
     if invoked:
-        func = function  # type: types.FunctionType or types.MethodType
+        func = _function  # type: types.FunctionType or types.MethodType
     wrap_param = {
         'print_args': print_args,
         'logger': logger,
@@ -241,31 +241,23 @@ def stopwatch(  # pylint: disable=R0913
     def wrapper(func):
         """
         装饰器封装函数
-
-        :param types.MethodType func: 被装饰方法
-        :return: 封装后的方法
-        :rtype: types.MethodType
         """
         @wraps(func)
-        def inner_function(*args, **kwargs):
+        def inner(*args, **kwargs):
             """
-            使用秒表封装函数
-            """
-            _stopwatch_wrapper = Stopwatch()(func, wrap_param)
-            return _stopwatch_wrapper(*args, **kwargs)
+            使用秒表封装被装饰对象
 
-        @wraps(func)
-        def inner_method(*args, **kwargs):
-            """
-            使用秒表封装方法
+            若被封装方法的首个位置参数继承了 StopwatchMixin 则将被封装方法所用的
+            self_or_cls 进行代理，从而在方法内可以访问到被代理的 stopwatch 属性
 
-            将被封装方法所用的 self_or_cls 进行代理，从而在方法内可以访问到被代理的 stopwatch 属性
+            若被封装方法的首个位置参数未继承 StopwatchMixin 则作为普通函数处理
 
             :param list args: 位置参数
             """
             if not (args and base.is_instance_or_subclass(args[0], StopwatchMixin)):
                 # 若当前被装饰的方法未继承 StopwatchMixin ，则将其作为普通函数装饰
-                return inner_function(*args, **kwargs)
+                _stopwatch_wrapper = Stopwatch()(func, wrap_param)
+                return _stopwatch_wrapper(*args, **kwargs)
 
             self_or_cls = args[0]  # type: StopwatchMixin
             callargs = base.get_callargs(func, *args, **kwargs)
@@ -273,6 +265,5 @@ def stopwatch(  # pylint: disable=R0913
             with self_or_cls._get_stopwatch(self_or_cls, **callargs) as _self_or_cls:
                 _stopwatch_wrapper = _self_or_cls.stopwatch(func, wrap_param)
                 return _stopwatch_wrapper(_self_or_cls, *args[1:], **kwargs)
-
-        return inner_method
+        return inner
     return wrapper if not invoked else wrapper(func)

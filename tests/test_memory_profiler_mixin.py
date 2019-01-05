@@ -5,14 +5,14 @@
 import pytest
 from memory_profiler import LineProfiler
 
-from moprofiler import MemoryProfilerMixin
+from moprofiler import MemoryProfilerMixin, memory_profiler
 
 
 class MemoryWaste(MemoryProfilerMixin):
     """
     浪费内存
     """
-    @MemoryProfilerMixin.profiler_manager(name='wuwuwu')
+    @memory_profiler(name='wuwuwu', print_res=False)
     def list_waste(self):
         """列表"""
         a = [1] * (10 ** 5)
@@ -21,7 +21,7 @@ class MemoryWaste(MemoryProfilerMixin):
         return a
 
     @classmethod
-    @MemoryProfilerMixin.profiler_manager
+    @memory_profiler
     def dict_waste(cls, a):
         """字典"""
         ret = {}

@@ -5,7 +5,7 @@
 import pytest
 from line_profiler import LineProfiler
 
-from moprofiler import TimeProfilerMixin
+from moprofiler import TimeProfilerMixin, time_profiler
 
 
 class QucikSort(TimeProfilerMixin):
@@ -15,7 +15,7 @@ class QucikSort(TimeProfilerMixin):
     def __init__(self, arr):
         self.arr = arr
 
-    @TimeProfilerMixin.profiler_manager(name='quick_sort')
+    @time_profiler(name='quick_sort')
     def sort(self, left=None, right=None):
         """排序"""
         left = 0 if not isinstance(left, (int, float)) else left
@@ -25,7 +25,7 @@ class QucikSort(TimeProfilerMixin):
             self.sort(left, partition_index - 1)
             self.sort(partition_index + 1, right)
 
-    @TimeProfilerMixin.profiler_manager
+    @time_profiler(print_res=False)
     def partition(self, left, right):
         """分区"""
         pivot = left
@@ -39,7 +39,7 @@ class QucikSort(TimeProfilerMixin):
         self.swap(pivot, index - 1)
         return index - 1
 
-    # @TimeProfilerMixin.profiler_manager
+    # @time_profiler
     def swap(self, i, j):
         """交换"""
         self.arr[i], self.arr[j] = self.arr[j], self.arr[i]

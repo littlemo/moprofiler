@@ -16,33 +16,6 @@ from . import base
 LOG = logging.getLogger(__name__)
 
 
-def time_profiler(func):
-    """
-    用于简单需求的函数装饰器
-
-    该装饰器同时支持装饰函数和方法
-
-    逐行分析被装饰函数每行的执行时间，
-    此装饰器将在被装饰函数执行结束后将统计结果打印到 stdout 。
-    考虑到此装饰器主要用于装饰函数，故设计的尽量简洁，
-    更复杂的功能建议使用基于 mixin 的方法装饰器
-
-    :param func: 被装饰的函数或方法
-    :type func: types.FunctionType or types.MethodType
-    :return: 封装后的方法
-    :rtype: types.FunctionType or types.MethodType
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        """用于统计每行执行时间的封装方法"""
-        lp = LineProfiler()
-        lp_wrap = lp(func)
-        func_return = lp_wrap(*args, **kwargs)
-        lp.print_stats()
-        return func_return
-    return wrapper
-
-
 class TimeProfilerMixin(base.ProfilerMixin):
     """
     时间分析器 Mixin 类
@@ -69,39 +42,51 @@ class TimeProfilerMixin(base.ProfilerMixin):
             raise KeyError(u'获取的键名({name})不存在！'.format(name=name))
         return cls._TIME_PROFILER_POOL[key]
 
-    @staticmethod
-    def profiler_manager(method=None, name=''):
+
+def time_profiler(
+        _function=None, name='', print_res=True,
+        stream=None, output_unit=None, stripzeros=False):
+    """
+    时间分析器装饰器
+
+    逐行分析被装饰函数每行的执行时间
+
+    :param _function: 被封装的方法，由解释器自动传入，不需关心
+    :type _function: types.FunctionType or types.MethodType
+    :param str name: 关键字参数，被装饰方法所使用的时间分析器名称，默认为使用被装饰方法的方法名
+    :param bool print_res: 是否在被装饰对象退出后立刻打印分析结果，默认为 True 。
+        当需要将多次调用结果聚集后输出时，可设为 False ，并通过 Mixin 中的 time_profiler 进行结果输出
+    :param object stream: 输出方式，默认为 stdout ，可指定为文件
+    :param str output_unit: 输出单位
+    :param bool stripzeros: 是否去零
+    :return: 装饰后的函数或方法
+    :rtype: types.FunctionType or types.MethodType
+    """
+    invoked = bool(_function and callable(_function))
+    if invoked:
+        func = _function  # type: types.FunctionType or types.MethodType
+
+    def wrapper(func):
         """
-        返回分析器管理下的方法
-
-        :param method: 被封装的方法，由解释器自动传入，不需关心
-        :type method: types.MethodType
-        :param str name: 关键字参数，被装饰方法所使用的时间分析器名称，默认为使用被装饰方法的方法名
-        :return: 装饰后的方法
-        :rtype: types.MethodType
+        装饰器封装函数
         """
-        invoked = bool(method and callable(method))
-        if invoked:
-            meth = method  # type: types.MethodType
-
-        def wrapper(meth):
+        @wraps(func)
+        def inner(*args, **kwargs):
             """
-            装饰器封装函数
-
-            :param types.MethodType meth: 被装饰方法
-            :return: 封装后的方法
-            :rtype: types.MethodType
+            将被封装方法使用 LineProfiler 进行封装
             """
-            @wraps(meth)
-            def inner(self_or_cls, *args, **kwargs):
-                """
-                将被封装方法使用 LineProfiler 进行封装
-
-                :param TimeProfilerMixin self_or_cls: 时间分析器 Mixin
-                """
-                _name = name or meth
+            if not (args and base.is_instance_or_subclass(args[0], TimeProfilerMixin)):
+                # 若当前被装饰的方法未继承 TimeProfilerMixin ，则将其作为普通函数装饰
+                lp = LineProfiler()
+            else:
+                self_or_cls = args[0]  # type: TimeProfilerMixin
+                _name = name or func
                 lp = self_or_cls.time_profiler(_name, raise_except=False)
-                profiler_wrapper = lp(meth)
-                return profiler_wrapper(self_or_cls, *args, **kwargs)
-            return inner
-        return wrapper if not invoked else wrapper(meth)
+
+            profiler_wrapper = lp(func)
+            res = profiler_wrapper(*args, **kwargs)
+            if print_res:
+                lp.print_stats(stream=stream, output_unit=output_unit, stripzeros=stripzeros)
+            return res
+        return inner
+    return wrapper if not invoked else wrapper(func)

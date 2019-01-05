@@ -9,13 +9,18 @@ import types  # pylint: disable=W0611
 from collections import defaultdict
 from functools import wraps
 
-from memory_profiler import LineProfiler, profile, show_results
+from memory_profiler import LineProfiler, choose_backend, show_results
 
 from . import base
 
-LOG = logging.getLogger(__name__)
+try:
+    import tracemalloc
 
-memory_profiler = profile  #: 仅为便于和时间分析器命名统一，主要用于简单需求的函数/方法装饰器，函数退出时即打印结果
+    has_tracemalloc = True  # pragma: no cover
+except ImportError:
+    has_tracemalloc = False
+
+LOG = logging.getLogger(__name__)
 
 
 class MemoryProfiler(LineProfiler):
@@ -60,39 +65,54 @@ class MemoryProfilerMixin(base.ProfilerMixin):
             raise KeyError(u'获取的键名({name})不存在！'.format(name=name))
         return cls._MEMORY_PROFILER_POOL[key]
 
-    @staticmethod
-    def profiler_manager(method=None, name=''):
+
+def memory_profiler(
+        _function=None, name='', print_res=True,
+        stream=None, precision=1, backend='psutil'):
+    """
+    内存分析器装饰器
+
+    :param _function: 被封装的方法，由解释器自动传入，不需关心
+    :type _function: types.FunctionType or types.MethodType
+    :param str name: 关键字参数，被装饰方法所使用的内存分析器名称，默认为使用被装饰方法的方法名
+    :param bool print_res: 是否在被装饰对象退出后立刻打印分析结果，默认为 True 。
+        当需要将多次调用结果聚集后输出时，可设为 False ，并通过 Mixin 中的 memory_profiler 进行结果输出
+    :param object stream: 输出方式，默认为 stdout ，可指定为文件
+    :param int precision: 精度，默认为 1
+    :param str backend: 内存监控的 backend ，默认为 'psutil'
+    :return: 装饰后的函数或方法
+    :rtype: types.FunctionType or types.MethodType
+    """
+    invoked = bool(_function and callable(_function))
+    if invoked:
+        func = _function  # type: types.FunctionType or types.MethodType
+
+    backend = choose_backend(backend)
+    if backend == 'tracemalloc' and has_tracemalloc:  # pragma: no cover
+        if not tracemalloc.is_tracing():  # pragma: no cover
+            tracemalloc.start()  # pragma: no cover
+
+    def wrapper(func):
         """
-        返回分析器管理下的方法
-
-        :param method: 被封装的方法，由解释器自动传入，不需关心
-        :type method: types.MethodType
-        :param str name: 关键字参数，被装饰方法所使用的内存分析器名称，默认为使用被装饰方法的方法名
-        :return: 装饰后的方法
-        :rtype: types.MethodType
+        装饰器封装函数
         """
-        invoked = bool(method and callable(method))
-        if invoked:
-            meth = method  # type: types.MethodType
-
-        def wrapper(meth):
+        @wraps(func)
+        def inner(*args, **kwargs):
             """
-            装饰器封装函数
-
-            :param types.MethodType meth: 被装饰方法
-            :return: 封装后的方法
-            :rtype: types.MethodType
+            将被封装方法使用 LineProfiler 进行封装
             """
-            @wraps(meth)
-            def inner(self_or_cls, *args, **kwargs):
-                """
-                将被封装方法使用 LineProfiler 进行封装
-
-                :param MemoryProfilerMixin self_or_cls: 内存分析器 Mixin
-                """
-                _name = name or meth
+            if not (args and base.is_instance_or_subclass(args[0], MemoryProfilerMixin)):
+                # 若当前被装饰的方法未继承 MemoryProfilerMixin ，则将其作为普通函数装饰
+                lp = MemoryProfiler(backend=backend)
+            else:
+                self_or_cls = args[0]  # type: MemoryProfilerMixin
+                _name = name or func
                 lp = self_or_cls.memory_profiler(_name, raise_except=False)
-                profiler_wrapper = lp(meth)
-                return profiler_wrapper(self_or_cls, *args, **kwargs)
-            return inner
-        return wrapper if not invoked else wrapper(meth)
+
+            profiler_wrapper = lp(func)
+            res = profiler_wrapper(*args, **kwargs)
+            if print_res:
+                lp.print_stats(stream=stream, precision=precision)
+            return res
+        return inner
+    return wrapper if not invoked else wrapper(func)

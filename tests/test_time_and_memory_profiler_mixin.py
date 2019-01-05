@@ -5,7 +5,8 @@
 import pytest
 from line_profiler import LineProfiler as TimeLineProfiler
 
-from moprofiler import MemoryProfilerMixin, TimeProfilerMixin
+from moprofiler import (MemoryProfilerMixin, TimeProfilerMixin,
+                        memory_profiler, time_profiler)
 
 
 class TimeAndMemoryWaste(MemoryProfilerMixin, TimeProfilerMixin):
@@ -13,14 +14,14 @@ class TimeAndMemoryWaste(MemoryProfilerMixin, TimeProfilerMixin):
     浪费时间&内存
     """
     # 不支持同时监控一个方法的时间&内存，最终会变成外层装饰器监控内层装饰器中的代码
-    @MemoryProfilerMixin.profiler_manager(name='wuwuwu')
+    @memory_profiler(name='wuwuwu')
     def list_waste(self):  # pylint: disable=R0201
         """列表"""
         a = [1] * (10 ** 5)
         return a
 
     @classmethod
-    @TimeProfilerMixin.profiler_manager
+    @time_profiler
     def dict_waste(cls, a):
         """字典"""
         ret = {}
