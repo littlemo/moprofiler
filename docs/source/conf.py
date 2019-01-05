@@ -54,6 +54,7 @@ extensions = [
 autodoc_default_flags = [
     'members',
     'show-inheritance',
+    'private-members',
 ]
 
 autodoc_member_order = 'bysource'
