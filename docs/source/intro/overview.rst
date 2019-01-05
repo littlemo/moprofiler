@@ -36,7 +36,7 @@
 时间分析器
 ----------
 
-该分析器可以统计出指定函数或方法中每行代码的执行耗时，从而找到瓶颈所在，用例如下:
+该分析器可以统计出指定函数或方法中每行代码的执行时间消耗，从而找到瓶颈所在，用例如下:
 
 .. code-block:: python
 
@@ -80,14 +80,14 @@
     qs = QucikSort(unsort_list)
     qs.sort()
     qs.time_profiler('partition').print_stats()
-    print('\n结果: {}'.format(qs.arr))
+    print('结果: {}'.format(qs.arr))
 
 执行结果如下::
 
     Timer unit: 1e-06 s
 
     Total time: 0.000344 s
-    File: ../tests/test_04_time_profiler_mixin.py
+    File: tests/test_04_time_profiler_mixin.py
     Function: partition at line 28
 
     Line #      Hits         Time  Per Hit   % Time  Line Contents
@@ -111,6 +111,65 @@
 内存分析器
 ----------
 
+该分析器可以统计出指定函数或方法中每行代码的执行内存消耗，从而找到瓶颈所在，用例如下:
+
+.. code-block:: python
+
+    from moprofiler import MemoryProfilerMixin, memory_profiler
+
+    class MemoryWaste(MemoryProfilerMixin):
+        """
+        浪费内存
+        """
+        @memory_profiler(name='wuwuwu', print_res=False)
+        def list_waste(self):
+            """列表"""
+            a = [1] * (10 ** 5)
+            b = [2] * (2 * 10 ** 5)
+            del b
+            return a
+
+        @classmethod
+        @memory_profiler
+        def dict_waste(cls, a):
+            """字典"""
+            ret = {}
+            for i in a:
+                ret[i] = i
+            return ret
+
+    mw = MemoryWaste()
+    x = mw.list_waste()
+    mw.dict_waste(x)
+    mw.memory_profiler('wuwuwu').print_stats()
+
+执行结果如下::
+
+    Filename: tests/test_01_memory_profiler_mixin.py
+
+    Line #    Mem usage    Increment   Line Contents
+    ================================================
+        23     40.9 MiB     40.9 MiB       @classmethod
+        24                                 @memory_profiler
+        25                                 def dict_waste(cls, a):
+        26                                     """字典"""
+        27     40.9 MiB      0.0 MiB           ret = {}
+        28     40.9 MiB      0.0 MiB           for i in a:
+        29     40.9 MiB      0.0 MiB               ret[i] = i
+        30     40.9 MiB      0.0 MiB           return ret
+
+
+    Filename: tests/test_01_memory_profiler_mixin.py
+
+    Line #    Mem usage    Increment   Line Contents
+    ================================================
+        15     38.6 MiB     38.6 MiB       @memory_profiler(name='wuwuwu', print_res=False)
+        16                                 def list_waste(self):
+        17                                     """列表"""
+        18     39.4 MiB      0.8 MiB           a = [1] * (10 ** 5)
+        19     40.9 MiB      1.5 MiB           b = [2] * (2 * 10 ** 5)
+        20     40.9 MiB      0.0 MiB           del b
+        21     40.9 MiB      0.0 MiB           return a
 
 秒表工具
 --------
