@@ -14,6 +14,7 @@
 #
 # import os
 # import sys
+import pkg_resources
 import sphinx_rtd_theme
 
 # sys.path.insert(0, os.path.abspath('.'))
@@ -25,10 +26,10 @@ project = u'moprofiler'
 copyright = u'2018, littlemo'
 author = u'littlemo'
 
-# The short X.Y version
-version = u''
 # The full version, including alpha/beta/rc tags
-release = u'0.0.0'
+release = pkg_resources.get_distribution("moprofiler").version
+# The short X.Y version
+version = '.'.join(release.split('.')[:2])
 
 
 # -- General configuration ---------------------------------------------------
