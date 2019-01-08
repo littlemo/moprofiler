@@ -198,6 +198,14 @@ class Stopwatch(object):  # pylint: disable=R0902
 
         注意仅当 ``memory`` 为真时，才会记录日志情况，否则将直接跳过。
 
+        日志输出模板中可使用变量如下:
+
+        #. ``idx`` : 当前打点的序号，从 *1* 开始
+        #. ``time_diff`` : 距上次打点间的时间差
+        #. ``time_total`` : 距函数/方法开始时的时间差
+        #. ``memory_diff`` : 距上次打点(memory=True)间的内存差，跳过未记录内存的时间打点，直到函数/方法进入时的内存记录
+        #. ``memory_total`` : 距函数/方法开始时的内存差
+
         :param str fmt: 用来输出打点日志的格式化模板，需使用 format 的占位符格式
         :param int logging_level: 日志输出级别，默认使用装饰当前方法时设置的级别，若无则使用类属性中定义的默认值
         :param bool memory: 是否记录内存使用，默认为 False
@@ -259,6 +267,14 @@ def stopwatch(
     返回秒表监控下的函数或方法
 
     通过额外的关键字参数，支持配置自定义的值到输出模板中
+
+    日志输出模板中可使用变量如下:
+
+    #. ``name`` : 当前秒表名称
+    #. ``args`` : 被装饰函数/方法的位置参数
+    #. ``kwargs`` : 被装饰函数/方法
+    #. ``time_use`` : 函数/方法执行耗时
+    #. ``mem_use`` : 函数/方法执行内存
 
     :param _function: 被封装的对象，由解释器自动传入，不需关心
     :type _function: types.FunctionType or types.MethodType
