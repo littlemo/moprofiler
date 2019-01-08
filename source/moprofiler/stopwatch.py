@@ -22,12 +22,13 @@ LOG = logging.getLogger(__name__)
 class Stopwatch(object):  # pylint: disable=R0902
     """秒表类"""
     LOGGING_LEVEL_DEFAULT = logging.INFO
-    DOTTING_FMT_DEFAULT = '[性能] {name} 当前耗时({idx}): {time_current:.4f}s, 累计耗时: {time_total:.4f}s'
-    DOTTING_FMT_WITH_MEM_DEFAULT = DOTTING_FMT_DEFAULT + ', 内存: {mem_diff:4d}M'
+    DOTTING_FMT_DEFAULT = '[性能] 当前耗时({idx}): {time_diff:.4f}s, 累计耗时: {time_total:.4f}s'
+    DOTTING_FMT_WITH_MEM_DEFAULT = DOTTING_FMT_DEFAULT + \
+        ', 当前变化: {mem_diff:2d}M, 累计变化: {mem_total:2d}M'
     FINAL_FMT_ARGS_DEFAULT = '[性能] {name}, 参数列表: {args} {kwargs}, 耗时: {time_use:.4f}s'
     FINAL_FMT_DEFAULT = '[性能] {name}, 耗时: {time_use:.4f}s'
-    FINAL_FMT_ARGS_WITH_MEM_DEFAULT = FINAL_FMT_ARGS_DEFAULT + ', 内存: {mem_use:4d}M'
-    FINAL_FMT_WITH_MEM_DEFAULT = FINAL_FMT_DEFAULT + ', 内存: {mem_use:4d}M'
+    FINAL_FMT_ARGS_WITH_MEM_DEFAULT = FINAL_FMT_ARGS_DEFAULT + ', 内存变化: {mem_use:2d}M'
+    FINAL_FMT_WITH_MEM_DEFAULT = FINAL_FMT_DEFAULT + ', 内存变化: {mem_use:2d}M'
 
     def __init__(self):
         self.time_buf = []  #: 用来存储计时打点时间
@@ -205,9 +206,10 @@ class Stopwatch(object):  # pylint: disable=R0902
         kwargs.update(self.dkwargs)
 
         self.logger.log(_level, _fmt.format(
-            time_current=self.time_buf[-1] - self.time_buf[-2],
+            time_diff=self.time_buf[-1] - self.time_buf[-2],
             time_total=self.time_buf[-1] - self.time_buf[0],
-            mem_diff=(self.mem_buf[-1] - self.mem_buf[-2]) if memory else 0,
+            mem_diff=(self.mem_buf[-1] - self.mem_buf[-2]) if memory else None,
+            mem_total=(self.mem_buf[-1] - self.mem_buf[0]) if memory else None,
             idx=idx,
             **kwargs))
 
