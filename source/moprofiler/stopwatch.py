@@ -128,7 +128,7 @@ class Stopwatch(object):  # pylint: disable=R0902
         :rtype: int
         """
         process = psutil.Process(os.getpid())
-        mem = process.memory_info().rss / (2 ** 20)  # 为速度考虑,不使用浮点
+        mem = process.memory_info().rss >> 20  # 为速度考虑，使用移位操作
         return mem
 
     def wrap_generator(self, func, wrap_param):
