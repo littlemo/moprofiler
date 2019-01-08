@@ -5,11 +5,13 @@
 from __future__ import absolute_import
 
 import logging
+import os
 import time
 import types  # pylint: disable=W0611
 from contextlib import contextmanager
 from functools import wraps
 
+import psutil
 from line_profiler import is_generator
 
 from . import base
@@ -20,12 +22,16 @@ LOG = logging.getLogger(__name__)
 class Stopwatch(object):
     """秒表类"""
     LOGGING_LEVEL_DEFAULT = logging.INFO
-    DOTTING_FMT_DEFAULT = '[性能] 当前耗时({idx}): {current:.4f}s, 累计耗时: {total:.4f}s'
-    FINAL_FMT_ARGS_DEFAULT = '[性能] {name}, 参数列表: {args} {kwargs}, 耗时: {use:.4f}s'
-    FINAL_FMT_DEFAULT = '[性能] {name}, 耗时: {use:.4f}s'
+    DOTTING_FMT_DEFAULT = '[性能] 当前耗时({idx}): {time_current:.4f}s, 累计耗时: {time_total:.4f}s'
+    DOTTING_FMT_WITH_MEM_DEFAULT = DOTTING_FMT_DEFAULT + ', 内存: {mem_diff:4d}M'
+    FINAL_FMT_ARGS_DEFAULT = '[性能] {name}, 参数列表: {args} {kwargs}, 耗时: {time_use:.4f}s'
+    FINAL_FMT_DEFAULT = '[性能] {name}, 耗时: {time_use:.4f}s'
+    FINAL_FMT_ARGS_WITH_MEM_DEFAULT = FINAL_FMT_ARGS_DEFAULT + ', 内存: {mem_use:4d}M'
+    FINAL_FMT_WITH_MEM_DEFAULT = FINAL_FMT_DEFAULT + ', 内存: {mem_use:4d}M'
 
     def __init__(self):
-        self.buf = []  #: 用来存储计时打点时间
+        self.time_buf = []  #: 用来存储计时打点时间
+        self.mem_buf = []  #: 用来存储打点内存
         self.name = ''  #: 秒表的名称，可在装饰时设置，默认为使用被装饰方法的方法名
         self.dkwargs = {}  #: 用来存储最终输出时使用的变量
         self.dotting_param_pre = {'kwargs': {}}  #: 用来记录上次打点输出时的参数信息
@@ -33,6 +39,7 @@ class Stopwatch(object):
         self.logger = None  # type: logging.Logger
         self.logging_level = None  #: 日志输出级别
         self.final_fmt = ''  #: 输出最终计时结果的字符串模板
+        self.is_print_memory = False  #: 是否打印内存
 
     def __call__(self, func, wrap_param):
         """
@@ -59,9 +66,16 @@ class Stopwatch(object):
         self.name = wrap_param.get('name')
         self.logger = wrap_param.get('logger') or LOG  # type: logging.Logger
         self.logging_level = wrap_param.get('logging_level') or self.LOGGING_LEVEL_DEFAULT
-        self.final_fmt = wrap_param.get('fmt') or (
-            self.FINAL_FMT_ARGS_DEFAULT if wrap_param.get('print_args') else self.FINAL_FMT_DEFAULT)
         self.dkwargs = wrap_param.get('dkwargs')
+        self.is_print_memory = wrap_param.get('print_mem') or False
+        if self.is_print_memory:
+            self.final_fmt = wrap_param.get('fmt') or (
+                self.FINAL_FMT_ARGS_WITH_MEM_DEFAULT if wrap_param.get('print_args') else \
+                self.FINAL_FMT_WITH_MEM_DEFAULT)
+        else:
+            self.final_fmt = wrap_param.get('fmt') or (
+                self.FINAL_FMT_ARGS_DEFAULT if wrap_param.get('print_args') else \
+                self.FINAL_FMT_DEFAULT)
 
     def _start(self, func, args, kwargs):
         """
@@ -80,17 +94,41 @@ class Stopwatch(object):
             'kwargs': kwargs,
             'begin_time': _begin_time,
         }
+        self.time_buf.append(_begin_time)
+
+        _begin_mem = self._get_mem_info
+        self.mem_buf.append(_begin_mem)
+        fmt_dict['begin_mem'] = _begin_mem
+
         self.dkwargs.update(fmt_dict)
-        self.buf.append(_begin_time)
 
     def _end(self):
         """
         结束秒表
         """
         _end_time = time.time()
-        self.buf.append(_end_time)
+        self.time_buf.append(_end_time)
         self.dkwargs['end_time'] = _end_time
-        self.dkwargs['use'] = _end_time - self.dkwargs['begin_time']
+        self.dkwargs['time_use'] = _end_time - self.dkwargs['begin_time']
+        if self.is_print_memory:
+            _end_mem = self._get_mem_info()
+            self.mem_buf.append(_end_mem)
+            self.dkwargs['end_mem'] = _end_mem
+            self.dkwargs['mem_use'] = _end_mem - self.dkwargs['begin_mem']
+
+        self.logger.log(self.logging_level, self.final_fmt.format(**self.dkwargs))
+
+    @staticmethod
+    def _get_mem_info():
+        """
+        获取内存信息
+
+        :return: 当前进程已用内存(rss)，单位 ``MB``
+        :rtype: int
+        """
+        process = psutil.Process(os.getpid())
+        mem = process.memory_info().rss / (2 ** 20)  # 为速度考虑,不使用浮点
+        return mem
 
     def wrap_generator(self, func, wrap_param):
         """
@@ -121,7 +159,6 @@ class Stopwatch(object):
                     _input = (yield item)
             except StopIteration:
                 self._end()
-                self.logger.log(self.logging_level, self.final_fmt.format(**self.dkwargs))
         return inner
 
     def wrap_function(self, func, wrap_param):
@@ -144,40 +181,35 @@ class Stopwatch(object):
             self._start(func, args, kwargs)
             result = func(*args, **kwargs)
             self._end()
-            self.logger.log(self.logging_level, self.final_fmt.format(**self.dkwargs))
             return result
         return inner
 
-    def dotting(self, fmt='', logging_level=None, mute=False, **kwargs):
+    def dotting(self, fmt='', logging_level=None, memory=False, mute=False, **kwargs):
         """
         输出打点日志
 
-        该方法除 ``mute`` 外的其余参数若不传则使用历史值
-
         :param str fmt: 用来输出打点日志的格式化模板，需使用 format 的占位符格式
         :param int logging_level: 日志输出级别，默认使用装饰当前方法时设置的级别，若无则使用类属性中定义的默认值
+        :param bool memory: 是否记录内存使用，默认为 False
         :param bool mute: 静默打点，默认为 False ，若设为 True ，则当次仅记录时间，不执行任何输出逻辑
         """
-        self.buf.append(time.time())
+        self.time_buf.append(time.time())
+        if memory:
+            self.mem_buf.append(self._get_mem_info())
         if mute:
             return
 
-        idx = len(self.buf) - 1
-        _kwargs = self.dotting_param_pre.get('kwargs', {})  # type: dict
-        _fmt = fmt or _kwargs.get('fmt') or self.DOTTING_FMT_DEFAULT
-        _level = logging_level or _kwargs.get('logging_level') or self.logging_level
-        if not _kwargs:
-            _kwargs.update(self.dkwargs)
-        _kwargs.update(kwargs)
+        idx = len(self.time_buf) - 1
+        _fmt = fmt or (self.DOTTING_FMT_WITH_MEM_DEFAULT if memory else self.DOTTING_FMT_DEFAULT)
+        _level = logging_level or self.logging_level
+        kwargs.update(self.dkwargs)
 
         self.logger.log(_level, _fmt.format(
-            current=self.buf[-1] - self.buf[-2],
-            total=self.buf[-1] - self.buf[0],
+            time_current=self.time_buf[-1] - self.time_buf[-2],
+            time_total=self.time_buf[-1] - self.time_buf[0],
+            mem_diff=(self.mem_buf[-1] - self.mem_buf[-2]) if memory else 0,
             idx=idx,
-            **_kwargs))
-
-        _kwargs['fmt'] = _fmt
-        _kwargs['logging_level'] = _level
+            **kwargs))
 
 
 class StopwatchMixin(base.ProfilerMixin):
@@ -210,7 +242,7 @@ class StopwatchMixin(base.ProfilerMixin):
 
 
 def stopwatch(
-        _function=None, print_args=False, logger=None,
+        _function=None, print_args=False, logger=None, print_mem=False,
         fmt='', name='', logging_level=logging.INFO, **dkwargs):
     """
     返回秒表监控下的函数或方法
@@ -221,6 +253,7 @@ def stopwatch(
     :type _function: types.FunctionType or types.MethodType
     :param bool print_args: 是否打印被装饰函数的参数列表，若含有较长的参数，可能造成日志过长，开启时请注意
     :param logging.Logger logger: 可传入指定的日志对象，便于统一输出样式，默认使用该模块中的全局 logger
+    :param bool print_mem: 是否在方法退出时打印内存信息，默认为 False
     :param str fmt: 用于格式化输出的模板，可在了解所有内置参数变量后自行定制输出样式，若指定该参数则会忽略 print_args
     :param str name: 关键字参数，被装饰方法代理生成的 stopwatch 所使用的名称，默认为使用被装饰方法的方法名
     :param int logging_level: 打印日志的级别，默认为 INFO
@@ -237,6 +270,7 @@ def stopwatch(
         'name': name,
         'logging_level': logging_level,
         'dkwargs': dkwargs,
+        'print_mem': print_mem,
     }
 
     def wrapper(func):
