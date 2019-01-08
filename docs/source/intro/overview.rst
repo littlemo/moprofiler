@@ -223,26 +223,26 @@
 
         @classmethod
         @stopwatch(
-            fmt='[性能] {name}, 参数列表: {args} {kwargs}, 耗时: {use:.8f}s, {foo}',
+            fmt='[性能] {name}, 参数列表: {args}, 耗时: {time_use:.8f}s, {foo}',
             logger=LOG,
             name='hakula',
             foo='matata')
         def orz_classmethod(cls, x):
             """类方法"""
             for _i in range(x):
-                cls.stopwatch.dotting('定制打点输出{idx}，当前 {current:.8f}s，累计: {total:.8f}s')
+                cls.stopwatch.dotting('定制打点输出{idx}，当前 {time_diff:.8f}s，累计: {time_total:.8f}s')
                 time.sleep(0.1)
             cls.stopwatch.dotting()
 
-        @stopwatch
+        @stopwatch(print_mem=True)
         def orz_instancemethod_generator(self, x):
             """实例方法生成器"""
             for _i in range(x):
                 mute = True if _i == 2 else False
-                self.stopwatch.dotting(mute=mute)
+                self.stopwatch.dotting(mute=mute, memory=True)
                 time.sleep(0.1)
                 yield _i
-            self.stopwatch.dotting()
+            self.stopwatch.dotting(memory=True)
 
     z = zzz()
     z.orz_staticmethod()
@@ -253,27 +253,27 @@
 
 执行结果如下::
 
-    [2019-01-05 22:35:13,680] INFO [moprofiler.stopwatch:147] [性能] orz_staticmethod, 耗时: 0.5071s
-    [2019-01-05 22:35:13,681] INFO [moprofiler.stopwatch:177] [性能] 当前耗时(1): 0.0000s, 累计耗时: 0.0000s
-    [2019-01-05 22:35:13,786] INFO [moprofiler.stopwatch:177] [性能] 当前耗时(2): 0.1046s, 累计耗时: 0.1046s
-    [2019-01-05 22:35:13,891] INFO [moprofiler.stopwatch:177] [性能] 当前耗时(3): 0.1052s, 累计耗时: 0.2098s
-    [2019-01-05 22:35:13,997] INFO [moprofiler.stopwatch:177] [性能] 当前耗时(4): 0.1055s, 累计耗时: 0.3153s
-    [2019-01-05 22:35:14,101] INFO [moprofiler.stopwatch:177] [性能] 当前耗时(5): 0.1044s, 累计耗时: 0.4197s
-    [2019-01-05 22:35:14,205] INFO [moprofiler.stopwatch:177] [性能] 当前耗时(6): 0.1039s, 累计耗时: 0.5236s
-    [2019-01-05 22:35:14,205] INFO [moprofiler.stopwatch:147] [性能] orz_instancemethod, 耗时: 0.5238s
-    [2019-01-05 22:35:14,205] INFO [test_02_stopwatch_mixin:177] 定制打点输出1，当前 0.00001907s，累计: 0.00001907s
-    [2019-01-05 22:35:14,310] INFO [test_02_stopwatch_mixin:177] 定制打点输出2，当前 0.10435295s，累计: 0.10437202s
-    [2019-01-05 22:35:14,415] INFO [test_02_stopwatch_mixin:177] 定制打点输出3，当前 0.10521197s，累计: 0.20958400s
-    [2019-01-05 22:35:14,519] INFO [test_02_stopwatch_mixin:177] 定制打点输出4，当前 0.10429406s，累计: 0.31387806s
-    [2019-01-05 22:35:14,623] INFO [test_02_stopwatch_mixin:177] 定制打点输出5，当前 0.10339808s，累计: 0.41727614s
-    [2019-01-05 22:35:14,727] INFO [test_02_stopwatch_mixin:177] 定制打点输出6，当前 0.10414290s，累计: 0.52141905s
-    [2019-01-05 22:35:14,727] INFO [test_02_stopwatch_mixin:147] [性能] hakula, 参数列表: (<class 'test_02_stopwatch_mixin.zzz'>, 5) {}, 耗时: 0.52167416s, matata
-    [2019-01-05 22:35:14,728] INFO [moprofiler.stopwatch:177] [性能] 当前耗时(1): 0.0000s, 累计耗时: 0.0000s
-    [2019-01-05 22:35:14,829] INFO [moprofiler.stopwatch:177] [性能] 当前耗时(2): 0.1010s, 累计耗时: 0.1011s
-    [2019-01-05 22:35:15,037] INFO [moprofiler.stopwatch:177] [性能] 当前耗时(4): 0.1040s, 累计耗时: 0.3091s
-    [2019-01-05 22:35:15,139] INFO [moprofiler.stopwatch:177] [性能] 当前耗时(5): 0.1025s, 累计耗时: 0.4115s
-    [2019-01-05 22:35:15,242] INFO [moprofiler.stopwatch:177] [性能] 当前耗时(6): 0.1029s, 累计耗时: 0.5144s
-    [2019-01-05 22:35:15,242] INFO [moprofiler.stopwatch:124] [性能] orz_instancemethod_generator, 耗时: 0.5147s
+    [2019-01-08 19:13:26,019] INFO [moprofiler.stopwatch:120] [性能] orz_staticmethod, 耗时: 0.5062s
+    [2019-01-08 19:13:26,021] INFO [moprofiler.stopwatch:214] [性能] 当前耗时(1): 0.0002s, 累计耗时: 0.0002s
+    [2019-01-08 19:13:26,127] INFO [moprofiler.stopwatch:214] [性能] 当前耗时(2): 0.1054s, 累计耗时: 0.1056s
+    [2019-01-08 19:13:26,229] INFO [moprofiler.stopwatch:214] [性能] 当前耗时(3): 0.1021s, 累计耗时: 0.2078s
+    [2019-01-08 19:13:26,333] INFO [moprofiler.stopwatch:214] [性能] 当前耗时(4): 0.1045s, 累计耗时: 0.3123s
+    [2019-01-08 19:13:26,438] INFO [moprofiler.stopwatch:214] [性能] 当前耗时(5): 0.1046s, 累计耗时: 0.4168s
+    [2019-01-08 19:13:26,542] INFO [moprofiler.stopwatch:214] [性能] 当前耗时(6): 0.1045s, 累计耗时: 0.5213s
+    [2019-01-08 19:13:26,543] INFO [moprofiler.stopwatch:120] [性能] orz_instancemethod, 耗时: 0.5218s
+    [2019-01-08 19:13:26,544] INFO [test_02_stopwatch_mixin:214] 定制打点输出1，当前 0.00021791s，累计: 0.00021791s
+    [2019-01-08 19:13:26,647] INFO [test_02_stopwatch_mixin:214] 定制打点输出2，当前 0.10304499s，累计: 0.10326290s
+    [2019-01-08 19:13:26,751] INFO [test_02_stopwatch_mixin:214] 定制打点输出3，当前 0.10447907s，累计: 0.20774198s
+    [2019-01-08 19:13:26,856] INFO [test_02_stopwatch_mixin:214] 定制打点输出4，当前 0.10449409s，累计: 0.31223607s
+    [2019-01-08 19:13:26,961] INFO [test_02_stopwatch_mixin:214] 定制打点输出5，当前 0.10524797s，累计: 0.41748405s
+    [2019-01-08 19:13:27,065] INFO [test_02_stopwatch_mixin:214] [性能] 当前耗时(6): 0.1044s, 累计耗时: 0.5219s
+    [2019-01-08 19:13:27,066] INFO [test_02_stopwatch_mixin:120] [性能] hakula, 参数列表: (<class 'test_02_stopwatch_mixin.zzz'>, 5), 耗时: 0.52235889s, matata
+    [2019-01-08 19:13:27,069] INFO [moprofiler.stopwatch:214] [性能] 当前耗时(1): 0.0019s, 累计耗时: 0.0019s, 当前变化:  1M, 累计变化:  1M
+    [2019-01-08 19:13:27,175] INFO [moprofiler.stopwatch:214] [性能] 当前耗时(2): 0.1060s, 累计耗时: 0.1079s, 当前变化:  2M, 累计变化:  3M
+    [2019-01-08 19:13:27,384] INFO [moprofiler.stopwatch:214] [性能] 当前耗时(4): 0.1041s, 累计耗时: 0.3167s, 当前变化:  2M, 累计变化:  6M
+    [2019-01-08 19:13:27,490] INFO [moprofiler.stopwatch:214] [性能] 当前耗时(5): 0.1068s, 累计耗时: 0.4235s, 当前变化:  1M, 累计变化:  7M
+    [2019-01-08 19:13:27,594] INFO [moprofiler.stopwatch:214] [性能] 当前耗时(6): 0.1040s, 累计耗时: 0.5274s, 当前变化:  0M, 累计变化:  7M
+    [2019-01-08 19:13:27,598] INFO [moprofiler.stopwatch:120] [性能] orz_instancemethod_generator, 耗时: 0.5313s, 内存变化:  7M
 
 
 .. _MoProfiler: https://github.com/littlemo/moprofiler
