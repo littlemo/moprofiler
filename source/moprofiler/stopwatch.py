@@ -22,7 +22,7 @@ LOG = logging.getLogger(__name__)
 class Stopwatch(object):
     """秒表类"""
     LOGGING_LEVEL_DEFAULT = logging.INFO
-    DOTTING_FMT_DEFAULT = '[性能] 当前耗时({idx}): {time_current:.4f}s, 累计耗时: {time_total:.4f}s'
+    DOTTING_FMT_DEFAULT = '[性能] {name} 当前耗时({idx}): {time_current:.4f}s, 累计耗时: {time_total:.4f}s'
     DOTTING_FMT_WITH_MEM_DEFAULT = DOTTING_FMT_DEFAULT + ', 内存: {mem_diff:4d}M'
     FINAL_FMT_ARGS_DEFAULT = '[性能] {name}, 参数列表: {args} {kwargs}, 耗时: {time_use:.4f}s'
     FINAL_FMT_DEFAULT = '[性能] {name}, 耗时: {time_use:.4f}s'
