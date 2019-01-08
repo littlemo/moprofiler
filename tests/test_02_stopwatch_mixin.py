@@ -33,26 +33,28 @@ class zzz(StopwatchMixin):
 
     @classmethod
     @stopwatch(
-        fmt='[性能] {name}, 参数列表: {args} {kwargs}, 耗时: {use:.8f}s, {foo}',
+        fmt='[性能] {name}, 参数列表: {args}, 耗时: {time_use:.8f}s, {foo}',
         logger=LOG,
         name='hakula',
         foo='matata')
     def orz_classmethod(cls, x):
         """类方法"""
         for _i in range(x):
-            cls.stopwatch.dotting('定制打点输出{idx}，当前 {current:.8f}s，累计: {total:.8f}s')
+            cls.stopwatch.dotting('定制打点输出{idx}，当前 {time_diff:.8f}s，累计: {time_total:.8f}s')
             time.sleep(0.1)
         cls.stopwatch.dotting()
 
-    @stopwatch
+    @stopwatch(print_mem=True)
     def orz_instancemethod_generator(self, x):
         """实例方法生成器"""
+        a = []
         for _i in range(x):
+            a.append([1] * (10 ** 5 * 2))
             mute = True if _i == 2 else False
-            self.stopwatch.dotting(mute=mute)
+            self.stopwatch.dotting(mute=mute, memory=True)
             time.sleep(0.1)
             yield _i
-        self.stopwatch.dotting()
+        self.stopwatch.dotting(memory=True)
 
 
 @stopwatch

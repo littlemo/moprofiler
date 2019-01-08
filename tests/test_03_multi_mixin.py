@@ -61,4 +61,4 @@ class TestMultiMixin(object):
 
 
 if __name__ == '__main__':
-    TestTimeAndMemoryProfilerMixin.test_time_and_memory_profiler_mixin()
+    TestMultiMixin.test_multi_mixin()

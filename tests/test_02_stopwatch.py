@@ -24,8 +24,9 @@ def _judge_with_set(x):
 
 @stopwatch(
     print_args=True,
-    fmt='[性能] {name}, 参数列表: {args} {kwargs}, 耗时: {use:.8f}s, {foo}',
+    fmt='[性能] {name}, 参数列表: {args} {kwargs}, 耗时: {time_use:.8f}s, {foo}',
     logger=LOG,
+    memory=True,
     name='hakula',
     foo='matata')
 def _judge_with_list(x):
