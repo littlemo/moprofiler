@@ -189,10 +189,19 @@ class Stopwatch(object):  # pylint: disable=R0902
         """
         输出打点日志
 
+        会在打点时记录当前的时间&进程内存使用(若 ``memory`` 为 ``True``)，并将其与上次的打点记录做差，
+        分别获取时间差 ``time_diff`` 、内存差 ``memory_diff`` ，再将其与进入函数时的记录做差，
+        分别获取到时间差 ``time_total`` 、内存差 ``memory_total`` 。
+
+        将以上四个变量传入 ``fmt`` 模板中格式化后输出到 ``log`` 。
+        除上述变量外，您还可以使用装饰器参数中指定的变量。
+
+        注意仅当 ``memory`` 为真时，才会记录日志情况，否则将直接跳过。
+
         :param str fmt: 用来输出打点日志的格式化模板，需使用 format 的占位符格式
         :param int logging_level: 日志输出级别，默认使用装饰当前方法时设置的级别，若无则使用类属性中定义的默认值
         :param bool memory: 是否记录内存使用，默认为 False
-        :param bool mute: 静默打点，默认为 False ，若设为 True ，则当次仅记录时间，不执行任何输出逻辑
+        :param bool mute: 静默打点，默认为 False ，若设为 True ，则当次仅记录时间/内存，不执行任何输出逻辑
         """
         self.time_buf.append(time.time())
         if memory:
