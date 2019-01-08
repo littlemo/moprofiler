@@ -27,7 +27,6 @@ line-profiler==2.1.2
 MarkupSafe==1.1.0
 mccabe==0.6.1
 memory-profiler==0.55.0
--e git+github:littlemo/moprofiler.git@1f07843673c0a4d2ae38d89b7c4efee8195137f9#egg=moprofiler
 more-itertools==5.0.0
 packaging==18.0
 pathlib2==2.3.3
