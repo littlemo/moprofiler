@@ -97,7 +97,7 @@ class Stopwatch(object):  # pylint: disable=R0902
         }
         self.time_buf.append(_begin_time)
 
-        _begin_mem = self._get_mem_info
+        _begin_mem = self._get_mem_info()
         self.mem_buf.append(_begin_mem)
         fmt_dict['begin_mem'] = _begin_mem
 
