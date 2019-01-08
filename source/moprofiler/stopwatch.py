@@ -19,7 +19,7 @@ from . import base
 LOG = logging.getLogger(__name__)
 
 
-class Stopwatch(object):
+class Stopwatch(object):  # pylint: disable=R0902
     """秒表类"""
     LOGGING_LEVEL_DEFAULT = logging.INFO
     DOTTING_FMT_DEFAULT = '[性能] {name} 当前耗时({idx}): {time_current:.4f}s, 累计耗时: {time_total:.4f}s'
