@@ -15,6 +15,10 @@
 [![Github All Releases](https://img.shields.io/github/downloads/littlemo/moprofiler/total.svg)](https://github.com/littlemo/moprofiler/releases)
 [![GitHub Release Date](https://img.shields.io/github/release-date/littlemo/moprofiler.svg)](https://github.com/littlemo/moprofiler/releases)
 
+### CI
+
+[![Build Status](https://travis-ci.org/littlemo/moprofiler.svg?branch=master)](https://travis-ci.org/littlemo/moprofiler)
+
 ### 文档
 
 [![Documentation Status](https://readthedocs.org/projects/moprofiler/badge/?version=latest)](http://moprofiler.readthedocs.io/zh_CN/latest/?badge=latest)
