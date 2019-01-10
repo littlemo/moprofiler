@@ -15,4 +15,4 @@ script:
   - coverage erase
   - pytest --cov=source/moprofiler --cov-branch --cov-report=xml:reports/coverage.xml -s tests
   - coverage report -m
-  - sonar-scanner
+  # - sonar-scanner
