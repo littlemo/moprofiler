@@ -13,6 +13,6 @@ before_script:
   - git fetch --unshallow
 script:
   - coverage erase
-  - pytest --rootdir=tests --log-level=INFO --cov=source/moprofiler --cov-branch --cov-report=xml:reports/coverage.xml -s tests
-  - coverage xml -i
+  - coverage run --branch --source=source/moprofiler pytest
+  - coverage xml -i -o reports/coverage.xml
   - sonar-scanner
