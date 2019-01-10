@@ -7,10 +7,9 @@ install:
   - pip install .
 script:
   - pytest --rootdir=tests --log-level=INFO --cov=source/moprofiler --cov-branch --cov-report=xml:reports/coverage.xml -s tests
+  - git fetch --unshallow
+  - sonar-scanner
 dist: trusty
 addons:
   sonarcloud:
-    organization: "littlemo-github" # the key of the org you chose at step #3
-script:
-  # other script steps might be done before running the actual analysis
-  - sonar-scanner
+    organization: "littlemo-github"
