@@ -5,14 +5,14 @@ python:
   - "3.5"
 install:
   - pip install -r requirements/test.txt
-  - pip install .
+  - pip install -e .
 addons:
   sonarcloud:
     organization: "littlemo-github"
 before_script:
   - git fetch --unshallow
 script:
-  - coverage erase
   - pytest --cov=source/moprofiler --cov-branch --cov-report=xml:reports/coverage.xml -s tests
   - coverage report -m
+# after_success:
   # - sonar-scanner

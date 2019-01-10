@@ -3,7 +3,6 @@
 branch = True
 omit =
     *tests*
-include = source/moprofiler/*
 
 [report]
 # Regexes for lines to exclude from consideration
