@@ -1,15 +1,18 @@
 language: python
+dist: trusty
 python:
   - "2.7"
   - "3.5"
 install:
   - pip install -r requirements/test.txt
   - pip install .
-script:
-  - pytest --rootdir=tests --log-level=INFO --cov=source/moprofiler --cov-branch --cov-report=xml:reports/coverage.xml -s tests
-  - git fetch --unshallow
-  - sonar-scanner
-dist: trusty
 addons:
   sonarcloud:
     organization: "littlemo-github"
+before_script:
+  - git fetch --unshallow
+script:
+  - coverage erase
+  - pytest --rootdir=tests --log-level=INFO --cov=source/moprofiler --cov-branch --cov-report=xml:reports/coverage.xml -s tests
+  - coverage xml -i
+  - sonar-scanner
