@@ -3,7 +3,7 @@
 branch = True
 omit =
     *tests*
-    source/moprofiler/version.py
+include = source/moprofiler/*
 
 [report]
 # Regexes for lines to exclude from consideration
