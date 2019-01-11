@@ -17,8 +17,8 @@ try:
     import tracemalloc
 
     has_tracemalloc = True  # pragma: no cover
-except ImportError:
-    has_tracemalloc = False
+except ImportError:  # pragma: no cover
+    has_tracemalloc = False  # pragma: no cover
 
 LOG = logging.getLogger(__name__)
 
