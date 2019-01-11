@@ -6,6 +6,7 @@ python:
 install:
   - pip install -r requirements/test.txt
   - pip install -e .
+  - python -c 'import os, pkg_resources; os.environ["MOPROFILER_VERSION"] = pkg_resources.get_distribution("moprofiler").version'
 addons:
   sonarcloud:
     organization: "littlemo-github"
@@ -15,4 +16,4 @@ script:
   - pytest --cov=source/moprofiler --cov-branch --cov-report=xml:reports/coverage.xml -s tests
   - coverage report -m
 after_success:
-  - sonar-scanner
+  - sonar-scanner -Dsonar.projectVersion=${MOPROFILER_VERSION}
