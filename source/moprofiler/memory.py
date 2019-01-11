@@ -67,6 +67,49 @@ class MemoryProfilerMixin(base.ProfilerMixin):
         return cls._MEMORY_PROFILER_POOL[key]
 
 
+def _process_backend(backend='psutil'):
+    """
+    处理内存分析器的后端
+
+    :param str backend: 内存监控的 backend ，默认为 'psutil'
+    :return: 处理后的后端名称
+    :rtype: str
+    """
+    backend = choose_backend(backend)
+    if backend == 'tracemalloc' and has_tracemalloc and \
+       not tracemalloc.is_tracing():  # pragma: no cover
+        tracemalloc.start()  # pragma: no cover
+    return backend
+
+
+def _get_profiler(args, backend, name, func):
+    """
+    获取分析器
+
+    若当前被装饰的方法未继承自 :py:class:`~moprofiler.memory.MemoryProfilerMixin` ，
+    则将其当做普通函数装饰，使用指定的 ``backend`` ，进行初始化并返回
+
+    否则，使用被装饰方法的第一个参数，并调用其
+    :py:meth:`~moprofiler.memory.MemoryProfilerMixin.memory_profiler` 方法获取实例并返回
+
+    :param list args: 被装饰方法的位置参数列表
+    :param str backend: 内存分析器的处理后端
+    :param str name: 关键字参数，被装饰方法所使用的内存分析器名称，默认为使用被装饰方法的方法名
+    :param func: 被装饰的函数/方法
+    :type func: types.FunctionType or types.MethodType
+    :return: 内存分析器对象
+    :rtype: MemoryProfiler
+    """
+    if not (args and base.is_instance_or_subclass(args[0], MemoryProfilerMixin)):
+        # 若当前被装饰的方法未继承 MemoryProfilerMixin ，则将其作为普通函数装饰
+        lp = MemoryProfiler(backend=backend)
+    else:
+        self_or_cls = args[0]  # type: MemoryProfilerMixin
+        _name = name or func
+        lp = self_or_cls.memory_profiler(_name, raise_except=False)
+    return lp
+
+
 def memory_profiler(
         _function=None, name='', print_res=True,
         stream=None, precision=1, backend='psutil'):
@@ -88,10 +131,7 @@ def memory_profiler(
     if invoked:
         func = _function  # type: types.FunctionType or types.MethodType
 
-    backend = choose_backend(backend)
-    if backend == 'tracemalloc' and has_tracemalloc and \
-       not tracemalloc.is_tracing():  # pragma: no cover
-        tracemalloc.start()  # pragma: no cover
+    backend = _process_backend(backend)
 
     def wrapper(func):
         """
@@ -102,13 +142,7 @@ def memory_profiler(
             """
             将被封装方法使用 LineProfiler 进行封装
             """
-            if not (args and base.is_instance_or_subclass(args[0], MemoryProfilerMixin)):
-                # 若当前被装饰的方法未继承 MemoryProfilerMixin ，则将其作为普通函数装饰
-                lp = MemoryProfiler(backend=backend)
-            else:
-                self_or_cls = args[0]  # type: MemoryProfilerMixin
-                _name = name or func
-                lp = self_or_cls.memory_profiler(_name, raise_except=False)
+            lp = _get_profiler(args, backend, name, func)
 
             profiler_wrapper = lp(func)
             res = profiler_wrapper(*args, **kwargs)
