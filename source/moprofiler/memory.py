@@ -89,9 +89,9 @@ def memory_profiler(
         func = _function  # type: types.FunctionType or types.MethodType
 
     backend = choose_backend(backend)
-    if backend == 'tracemalloc' and has_tracemalloc:  # pragma: no cover
-        if not tracemalloc.is_tracing():  # pragma: no cover
-            tracemalloc.start()  # pragma: no cover
+    if backend == 'tracemalloc' and has_tracemalloc and \
+       not tracemalloc.is_tracing():  # pragma: no cover
+        tracemalloc.start()  # pragma: no cover
 
     def wrapper(func):
         """
