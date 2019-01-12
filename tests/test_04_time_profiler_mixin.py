@@ -8,7 +8,7 @@ from line_profiler import LineProfiler
 from moprofiler import TimeProfilerMixin, time_profiler
 
 
-class QucikSort(TimeProfilerMixin):
+class QuickSort(TimeProfilerMixin):
     """
     快速排序
     """
@@ -53,17 +53,22 @@ class TestTimeProfilerMixin(object):
         """测试时间分析器的 mixin"""
         unsort_list = [3, 12, 12, 11, 15, 9, 12, 4, 15, 4, 2, 15, 7, 10, 12, 2, 3, 1, 14, 5, 7]
         print('\n乱序列表：{}'.format(unsort_list))
-        qs = QucikSort(unsort_list)
+        qs = QuickSort(unsort_list)
         qs.sort()
         print('排序列表：{}'.format(qs.arr))
         print('时间分析器暂存池：{}'.format(TimeProfilerMixin._TIME_PROFILER_POOL.keys()))
-        with pytest.raises(KeyError):
-            qs.time_profiler('sort')
         assert isinstance(qs.time_profiler('partition'), LineProfiler)
 
         # qs.time_profiler('quick_sort').print_stats()
         qs.time_profiler('partition').print_stats()
         # qs.time_profiler('swap').print_stats()
+
+    @staticmethod
+    def test_time_profiler_key_error():
+        """测试获取不存在的时间分析器"""
+        qs = QuickSort([3, 2, 1])
+        with pytest.raises(KeyError):
+            qs.time_profiler('sort')
 
 
 if __name__ == '__main__':
