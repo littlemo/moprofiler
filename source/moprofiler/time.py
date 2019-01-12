@@ -91,7 +91,7 @@ def time_profiler(
                 lp.print_stats(
                     stream=stream,
                     output_unit=output_unit,
-                    stripzeros=stripzeros)  # pragma: no cover
+                    stripzeros=stripzeros)
             return res  # pragma: no cover
         return inner
     return wrapper if not invoked else wrapper(func)

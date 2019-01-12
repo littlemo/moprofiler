@@ -18,7 +18,7 @@ try:
 
     has_tracemalloc = True  # pragma: no cover
 except ImportError:  # pragma: no cover
-    has_tracemalloc = False  # pragma: no cover
+    has_tracemalloc = False
 
 LOG = logging.getLogger(__name__)
 
@@ -78,7 +78,7 @@ def _process_backend(backend='psutil'):
     backend = choose_backend(backend)
     if backend == 'tracemalloc' and has_tracemalloc and \
        not tracemalloc.is_tracing():  # pragma: no cover
-        tracemalloc.start()  # pragma: no cover
+        tracemalloc.start()
     return backend
 
 
