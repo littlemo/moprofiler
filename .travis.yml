@@ -14,8 +14,8 @@ before_script:
   - git fetch --unshallow
 script:
   - pytest --cov=source/moprofiler --cov-branch --cov-report=xml:reports/coverage.xml -s tests
-  - pytest --cov=source/moprofiler --cov-branch --cov-report=xml:reports/coverage.xml --cov-append -s 'tests/test_04_time_profiler_mixin.py::TestTimeProfilerMixin::test_time_profiler_key_error'
-  - pytest --cov=source/moprofiler --cov-branch --cov-report=xml:reports/coverage.xml --cov-append -s 'tests/test_04_time_profiler.py::TestTimeProfiler::test_time_profiler'
+  - pytest --cov=source/moprofiler --cov-branch --cov-report=xml:reports/coverage.xml --cov-append -s 'tests/test_50_time_profiler_mixin.py::TestTimeProfilerMixin::test_time_profiler_key_error'
+  - pytest --cov=source/moprofiler --cov-branch --cov-report=xml:reports/coverage.xml --cov-append -s 'tests/test_50_time_profiler.py::TestTimeProfiler::test_time_profiler'
   - coverage report -m
 after_success:
   - sonar-scanner -Dsonar.projectVersion=${MOPROFILER_VERSION}
