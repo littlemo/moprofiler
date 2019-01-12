@@ -86,8 +86,12 @@ def time_profiler(
 
             profiler_wrapper = lp(func)
             res = profiler_wrapper(*args, **kwargs)
-            if print_res:
-                lp.print_stats(stream=stream, output_unit=output_unit, stripzeros=stripzeros)
-            return res
+            if print_res:  # pragma: no cover
+                # 此处由于 LineProfiler 的 C 库造成的 coverage 统计 Bug ，故手动配置为 no cover
+                lp.print_stats(
+                    stream=stream,
+                    output_unit=output_unit,
+                    stripzeros=stripzeros)  # pragma: no cover
+            return res  # pragma: no cover
         return inner
     return wrapper if not invoked else wrapper(func)
