@@ -3,7 +3,6 @@
 测试基础函数包
 """
 import logging
-import types
 
 import pytest
 
@@ -78,12 +77,14 @@ class TestBase(object):
         assert base.get_default_key(a, a.test) == expect_name
         assert base.get_default_key(A, A.test) == expect_name
         with pytest.raises(TypeError):
-            print base.get_default_key(a, 1)
+            base.get_default_key(a, 1)
 
     @staticmethod
     def test_get_callargs():
         """测试获取调用参数字典的函数"""
         expect = {'a': 10, 'b': 20, 'args': (1, 2), 'kwargs': {'e': 'e', 'd': 'd'}}
         assert expect == base.get_callargs(test_closure, 10, 20, 1, 2, e='e', d='d')
-        print base.get_callargs(test_closure_method, 10, 20, 1, 2, e='e', d='d')
-        print base.get_callargs(test_closure_call, 10, 20, 1, 2, e='e', d='d')
+        callargs = base.get_callargs(test_closure_method, 10, 20, 1, 2, e='e', d='d')
+        callargs.pop('cls', None)
+        assert expect == callargs
+        assert expect == base.get_callargs(test_closure_call, 10, 20, 1, 2, e='e', d='d')
