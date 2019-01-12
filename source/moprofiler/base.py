@@ -4,8 +4,8 @@
 """
 import inspect
 import logging
+import types
 from contextlib import contextmanager
-from types import FunctionType
 
 from pyaop import AOP, Proxy, Return
 
@@ -45,16 +45,13 @@ def get_callargs(func, *args, **kwargs):
     :rtype: dict
     """
     for closure in func.__closure__ or []:
-        if isinstance(closure.cell_contents, FunctionType):
+        if isinstance(
+                closure.cell_contents,
+                (types.FunctionType, types.MethodType)):  # pragma: no cover
             func = closure.cell_contents
             return get_callargs(func, *args, **kwargs)
     else:  # pylint: disable=W0120
         callargs = inspect.getcallargs(func, *args, **kwargs)
-        spec = inspect.getargspec(func)
-
-        if spec.keywords:
-            callargs.update(callargs.pop(spec.keywords, {}))
-
         return callargs
 
 
