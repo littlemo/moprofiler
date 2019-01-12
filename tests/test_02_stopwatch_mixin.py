@@ -5,6 +5,8 @@
 import logging
 import time
 
+import pytest
+
 from moprofiler import StopwatchMixin, stopwatch
 
 logging.basicConfig(
@@ -30,6 +32,8 @@ class zzz(StopwatchMixin):
             self.stopwatch.dotting()
             time.sleep(0.1)
         self.stopwatch.dotting()
+        with pytest.raises(AttributeError):
+            x = self.not_exists
 
     @classmethod
     @stopwatch(
