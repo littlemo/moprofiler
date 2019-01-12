@@ -13,7 +13,7 @@ class MemoryWaste(MemoryProfilerMixin):
     浪费内存
     """
     @memory_profiler(name='wuwuwu', print_res=False)
-    def list_waste(self):
+    def list_waste(self):  # pylint: disable=R0201
         """列表"""
         a = [1] * (10 ** 5)
         b = [2] * (2 * 10 ** 5)
@@ -45,7 +45,6 @@ class TestMemoryProfilerMixin(object):
         assert isinstance(mw.memory_profiler('dict_waste'), LineProfiler)
 
         mw.memory_profiler('wuwuwu').print_stats()
-        mw.memory_profiler('dict_waste').print_stats()
 
 
 if __name__ == '__main__':
