@@ -4,7 +4,7 @@
 """
 import random
 
-from moprofiler import time_profiler, time_profiler_getter
+from moprofiler import time, time_profiler, time_profiler_getter
 
 
 class TestTimeProfiler(object):
@@ -23,7 +23,7 @@ class TestTimeProfiler(object):
                     cnt += 1
             return cnt
 
-        @time_profiler
+        @time_profiler(print_res=False)
         def _judge_with_list(x):
             cnt = 0
             tp = ['1', '3', '5', '7', '11']
@@ -34,4 +34,6 @@ class TestTimeProfiler(object):
 
         random_list = [random.choice(['2', '11']) for _x in range(1000)]
         assert _judge_with_set(random_list) == _judge_with_list(random_list)
-        time_profiler_getter('_judge_with_list')
+        _judge_with_list(random_list)
+        print('时间分析器暂存池：{}'.format(getattr(time, '__time_profiler_pool').keys()))
+        time_profiler_getter('_judge_with_list').print_stats()
