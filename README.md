@@ -19,19 +19,19 @@
 
 [![Build Status](https://travis-ci.org/littlemo/moprofiler.svg?branch=master)](https://travis-ci.org/littlemo/moprofiler)
 [![Documentation Status](https://readthedocs.org/projects/moprofiler/badge/?version=latest)](http://moprofiler.readthedocs.io/zh_CN/latest/?badge=latest)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=alert_status)](https://sonarcloud.io/dashboard?id=littlemo_moprofiler)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=coverage)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Coverage)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=ncloc)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=ncloc)
+[![Alert Status](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=alert_status)](https://sonarcloud.io/dashboard?id=littlemo_moprofiler)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=coverage)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Coverage)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=ncloc)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=ncloc)
 
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=sqale_rating)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Maintainability)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=reliability_rating)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Reliability)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=security_rating)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Security)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=sqale_rating)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Maintainability)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=reliability_rating)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Reliability)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=security_rating)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Security)
 
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=vulnerabilities)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Security)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=bugs)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Reliability)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=duplicated_lines_density)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Duplications)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=code_smells)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Maintainability)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=sqale_index)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Maintainability)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=vulnerabilities)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Security)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=bugs)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Reliability)
+[![Duplicated Lines](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=duplicated_lines_density)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Duplications)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=code_smells)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Maintainability)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=littlemo_moprofiler&metric=sqale_index)](https://sonarcloud.io/component_measures?id=littlemo_moprofiler&metric=Maintainability)
 
 ### PyPi
 
