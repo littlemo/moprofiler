@@ -6,7 +6,7 @@ python:
 install:
   - pip install -r requirements/test.txt
   - pip install -e .
-  - python -c 'import os, pkg_resources; os.environ["MOPROFILER_VERSION"] = pkg_resources.get_distribution("moprofiler").version'
+  - python -c 'import pkg_resources; print("export MOPROFILER_VERSION={}".format(pkg_resources.get_distribution("moprofiler").version))' > VERSION && source VERSION
 addons:
   sonarcloud:
     organization: "littlemo-github"
