@@ -1,4 +1,5 @@
 # encoding=utf8
+"""打包配置"""
 from setuptools import find_packages, setup
 
 VERSION_SUFFIX_DEV = 'dev'
@@ -8,7 +9,7 @@ VERSION_SUFFIX_BETA = 'b'
 VERSION_SUFFIX_RC = 'rc'
 VERSION_SUFFIX_NONE = None
 
-VERSION = (1, 0, 1, VERSION_SUFFIX_POST, 1)
+VERSION = (1, 0, 2, VERSION_SUFFIX_NONE, 0)
 
 
 def get_setup_version():
