@@ -4,7 +4,7 @@
 """
 import random
 
-from moprofiler import time_profiler
+from moprofiler import time_profiler, time_profiler_getter
 
 
 class TestTimeProfiler(object):
@@ -34,3 +34,4 @@ class TestTimeProfiler(object):
 
         random_list = [random.choice(['2', '11']) for _x in range(1000)]
         assert _judge_with_set(random_list) == _judge_with_list(random_list)
+        time_profiler_getter('_judge_with_list')

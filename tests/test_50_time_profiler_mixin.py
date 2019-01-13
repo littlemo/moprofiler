@@ -5,7 +5,7 @@
 import pytest
 from line_profiler import LineProfiler
 
-from moprofiler import TimeProfilerMixin, time_profiler
+from moprofiler import TimeProfilerMixin, time, time_profiler
 
 
 class QuickSort(TimeProfilerMixin):
@@ -56,7 +56,7 @@ class TestTimeProfilerMixin(object):
         qs = QuickSort(unsort_list)
         qs.sort()
         print('排序列表：{}'.format(qs.arr))
-        print('时间分析器暂存池：{}'.format(TimeProfilerMixin._TIME_PROFILER_POOL.keys()))
+        print('时间分析器暂存池：{}'.format(getattr(time, '__time_profiler_pool').keys()))
         assert isinstance(qs.time_profiler('partition'), LineProfiler)
 
         # qs.time_profiler('quick_sort').print_stats()
@@ -67,6 +67,8 @@ class TestTimeProfilerMixin(object):
     def test_time_profiler_key_error():
         """测试获取不存在的时间分析器"""
         qs = QuickSort([3, 2, 1])
+        qs.time_profiler('test', raise_except=False)
+        qs.time_profiler('test')
         with pytest.raises(KeyError):
             qs.time_profiler('sort')
 

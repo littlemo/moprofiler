@@ -8,7 +8,9 @@ import pytest
 from line_profiler import LineProfiler as TimeLineProfiler
 
 from moprofiler import (MemoryProfilerMixin, StopwatchMixin, TimeProfilerMixin,
-                        memory_profiler, stopwatch, time_profiler)
+                        memory, memory_profiler, stopwatch)
+from moprofiler import time as ptime
+from moprofiler import time_profiler
 
 
 class MultiMixin(MemoryProfilerMixin, TimeProfilerMixin, StopwatchMixin):
@@ -50,8 +52,8 @@ class TestMultiMixin(object):
         x = mm.list_waste()
         mm.dict_waste(x)
         mm.orz_instancemethod(5)
-        print('\n时间分析器暂存池：{}'.format(TimeProfilerMixin._TIME_PROFILER_POOL.keys()))
-        print('内存分析器暂存池：{}'.format(MemoryProfilerMixin._MEMORY_PROFILER_POOL.keys()))
+        print('\n时间分析器暂存池：{}'.format(getattr(ptime, '__time_profiler_pool').keys()))
+        print('内存分析器暂存池：{}'.format(getattr(memory, '__memory_profiler_pool').keys()))
         with pytest.raises(KeyError):
             mm.memory_profiler('list_waste')
         assert isinstance(mm.time_profiler('dict_waste'), TimeLineProfiler)
