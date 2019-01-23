@@ -24,18 +24,21 @@ def _make_time_profiler_getter(self_or_cls=None):
 
     :param TimeProfilerMixin self_or_cls: 时间分析器 Mixin 实例或类
     """
-    def _profiler_getter(name, raise_except=True):
+    def _profiler_getter(name, raise_except=True, force_new_profiler=False):
         """
         闭包方法，获取时间分析器
 
         :param str name: 指定的时间分析器名称
         :param bool raise_except: 若不存在是否抛出异常，默认为是，若为否，则会生成指定名称的分析器并返回
+        :param bool force_new_profiler: 是否强制使用新的分析器，默认为 ``否``
         :return: 时间分析器对象
         :rtype: LineProfiler
         :raises KeyError: 获取的键名不存在
         """
         if self_or_cls:
             name = base.get_default_key(self_or_cls, name)
+        if force_new_profiler:
+            __time_profiler_pool.pop(name, None)
         if name not in __time_profiler_pool:
             if raise_except:
                 raise KeyError(u'获取的键名({name})不存在！'.format(name=name))
@@ -58,7 +61,7 @@ class TimeProfilerMixin(base.ProfilerMixin):
     """
 
     @classmethod
-    def time_profiler(cls, name, raise_except=True):
+    def time_profiler(cls, name, raise_except=True, force_new_profiler=False):
         """
         获取指定的时间分析器
 
@@ -68,12 +71,14 @@ class TimeProfilerMixin(base.ProfilerMixin):
         :rtype: LineProfiler
         :raises KeyError: 获取的键名不存在
         """
-        return _make_time_profiler_getter(cls)(name, raise_except=raise_except)
+        return _make_time_profiler_getter(cls)(
+            name, raise_except=raise_except, force_new_profiler=force_new_profiler)
 
 
 def time_profiler(
         _function=None, name='', print_res=True,
-        stream=None, output_unit=None, stripzeros=False):
+        stream=None, output_unit=None, stripzeros=False,
+        force_new_profiler=False):
     """
     时间分析器装饰器
 
@@ -87,6 +92,7 @@ def time_profiler(
     :param object stream: 输出方式，默认为 stdout ，可指定为文件
     :param str output_unit: 输出单位
     :param bool stripzeros: 是否去零
+    :param bool force_new_profiler: 是否强制使用新的分析器，默认为 ``否``
     :return: 装饰后的函数或方法
     :rtype: types.FunctionType or types.MethodType
     """
@@ -106,10 +112,12 @@ def time_profiler(
             _name = name or func.__name__
             if not (args and base.is_instance_or_subclass(args[0], TimeProfilerMixin)):
                 # 若当前被装饰的方法未继承 TimeProfilerMixin ，则将其作为普通函数装饰
-                lp = time_profiler_getter(_name, raise_except=False)
+                lp = time_profiler_getter(
+                    _name, raise_except=False, force_new_profiler=force_new_profiler)
             else:
                 self_or_cls = args[0]  # type: TimeProfilerMixin
-                lp = self_or_cls.time_profiler(_name, raise_except=False)
+                lp = self_or_cls.time_profiler(
+                    _name, raise_except=False, force_new_profiler=force_new_profiler)
 
             profiler_wrapper = lp(func)
             res = profiler_wrapper(*args, **kwargs)
