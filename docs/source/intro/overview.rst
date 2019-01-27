@@ -114,6 +114,13 @@
 
     结果：[1, 2, 2, 3, 3, 4, 4, 5, 7, 7, 9, 10, 11, 12, 12, 12, 12, 14, 15, 15, 15]
 
+.. attention::
+
+   当被装饰函数&方法被多次调用时，会复用该函数&方法对应的单例分析器，
+   所得的统计结果在上次的基础上累加后用于打印。若确实不关心累计结果，
+   仅需要使用全新的分析器进行分析可在装饰时使用 ``force_new_profiler`` 关键字参数实现，
+   具体参考 :py:func:`~moprofiler.time.time_profiler`
+
 .. _overview-memory-profiler:
 
 内存分析器
@@ -179,6 +186,13 @@
         19     40.9 MiB      1.5 MiB           b = [2] * (2 * 10 ** 5)
         20     40.9 MiB      0.0 MiB           del b
         21     40.9 MiB      0.0 MiB           return a
+
+.. attention::
+
+   当被装饰函数&方法被多次调用时，会复用该函数&方法对应的单例分析器，
+   所得的统计结果在上次的基础上累加后用于打印。若确实不关心累计结果，
+   仅需要使用全新的分析器进行分析可在装饰时使用 ``force_new_profiler`` 关键字参数实现，
+   具体参考 :py:func:`~moprofiler.memory.memory_profiler`
 
 .. _overview-stopwatch:
 
