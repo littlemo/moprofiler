@@ -37,7 +37,7 @@ def _make_time_profiler_getter(self_or_cls=None):
         """
         if self_or_cls:
             name = base.get_default_key(self_or_cls, name)
-        if force_new_profiler:
+        if force_new_profiler:  # pragma: no cover
             __time_profiler_pool.pop(name, None)
         if name not in __time_profiler_pool:
             if raise_except:

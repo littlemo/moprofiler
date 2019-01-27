@@ -35,8 +35,25 @@ class TestMemoryProfiler(object):
         print('求和结果: {}'.format(calc_sum()))
         gc.collect()
         calc_sum_2(10000)
+        p1 = memory_profiler_getter('calc_sum_2')
         calc_sum_2(10000)
-        memory_profiler_getter('calc_sum_2').print_stats()
+        p2 = memory_profiler_getter('calc_sum_2')
+        p2.print_stats()
+        assert p1 is p2
+
+    @staticmethod
+    def test_memory_profiler_with_force_new_profiler():
+        """测试强制使用新分析器的参数功能"""
+
+        @memory_profiler(print_res=False, force_new_profiler=True)
+        def _force_new_profiler():
+            pass
+
+        _force_new_profiler()
+        p1 = memory_profiler_getter('_force_new_profiler')
+        _force_new_profiler()
+        p2 = memory_profiler_getter('_force_new_profiler')
+        assert p1 is not p2
 
 
 if __name__ == '__main__':

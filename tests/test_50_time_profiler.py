@@ -36,4 +36,22 @@ class TestTimeProfiler(object):
         assert _judge_with_set(random_list) == _judge_with_list(random_list)
         _judge_with_list(random_list)
         print('时间分析器暂存池：{}'.format(getattr(time, '__time_profiler_pool').keys()))
-        time_profiler_getter('_judge_with_list').print_stats()
+        p1 = time_profiler_getter('_judge_with_list')
+        p1.print_stats()
+        _judge_with_list(random_list)
+        p2 = time_profiler_getter('_judge_with_list')
+        assert p1 is p2
+
+    @staticmethod
+    def test_time_profiler_with_force_new_profiler():
+        """测试强制使用新分析器的参数功能"""
+
+        @time_profiler(print_res=False, force_new_profiler=True)
+        def _force_new_profiler():
+            pass
+
+        _force_new_profiler()
+        p1 = time_profiler_getter('_force_new_profiler')
+        _force_new_profiler()
+        p2 = time_profiler_getter('_force_new_profiler')
+        assert p1 is not p2
