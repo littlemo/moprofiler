@@ -4,6 +4,8 @@
 """
 import random
 
+from line_profiler import LineProfiler
+
 from moprofiler import time_profiler
 
 
@@ -34,17 +36,17 @@ class TestTimeProfiler(object):
     @staticmethod
     def test_time_profiler_run():
         """测试时间分析器装饰器执行"""
-        assert _judge_with_set.time_profiler is None
-        assert _judge_with_list.time_profiler is None
+        assert isinstance(_judge_with_set.profiler, LineProfiler)
+        assert isinstance(_judge_with_list.profiler, LineProfiler)
 
         random_list = [random.choice(['2', '11']) for _x in range(1000)]
         _judge_with_set(random_list)
         assert _judge_with_set(random_list) == _judge_with_list(random_list)
 
-        p1 = _judge_with_list.time_profiler
+        p1 = _judge_with_list.profiler
         p1.print_stats()
         _judge_with_list(random_list)
-        p2 = _judge_with_list.time_profiler
+        p2 = _judge_with_list.profiler
         assert p1 is p2
 
     @staticmethod
@@ -68,7 +70,7 @@ class TestTimeProfiler(object):
             pass
 
         _force_new_profiler()
-        p1 = _force_new_profiler.time_profiler
+        p1 = _force_new_profiler.profiler
         _force_new_profiler()
-        p2 = _force_new_profiler.time_profiler
+        p2 = _force_new_profiler.profiler
         assert p1 is not p2
