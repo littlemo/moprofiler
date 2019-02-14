@@ -19,7 +19,7 @@ def _judge_with_set(x):
             cnt += 1
     return cnt
 
-@time_profiler(print_res=False)
+@time_profiler(print_res=False, fake_method=True)
 def _judge_with_list(x):
     """test_wrapper_list_docstring"""
     cnt = 0
