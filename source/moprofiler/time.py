@@ -73,8 +73,8 @@ class time_profiler(object):  # pylint: disable=R0902
             args = (self._instance,) + args
         return self if not _func else self._wrapper(*args, **kwargs)
 
-    def __get__(self, instance, owner):
-        self._instance = instance
+    def __get__(self, *args, **kwargs):
+        self._instance = args[0]
         return self
 
     def _wrapper(self, *args, **kwargs):
