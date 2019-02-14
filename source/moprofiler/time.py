@@ -14,9 +14,9 @@ LOG = logging.getLogger(__name__)
 
 
 class time_profiler(object):  # pylint: disable=R0902
-    """时间分析器"""
+    """时间分析器的类装饰器"""
     def __init__(
-            self, _function=None, print_res=True,
+            self, _function=None, fake_method=False, print_res=True,
             stream=None, output_unit=None, stripzeros=False,
             force_new_profiler=False):
         """
@@ -26,6 +26,9 @@ class time_profiler(object):  # pylint: disable=R0902
 
         :param _function: 被封装的对象，由解释器自动传入，不需关心
         :type _function: types.FunctionType or types.MethodType
+        :param bool fake_method: 是否将被装饰后的类装饰器伪装成方法，默认为否。
+            注意，伪装后虽然仍然可以正常调用 :py:attr:`~moprofiler.time.time_profiler.profiler`
+            但将不会有语法提示，此参数仅用于装饰类方法时使用，装饰函数时无效
         :param bool print_res: 是否在被装饰对象退出后立刻打印分析结果，默认为 True 。
             当需要将多次调用结果聚集后输出时，可设为 False ，并通过 Mixin 中的 time_profiler 进行结果输出
         :param object stream: 输出方式，默认为 stdout ，可指定为文件
@@ -47,6 +50,7 @@ class time_profiler(object):  # pylint: disable=R0902
 
         # 内部属性
         # 装饰器参数
+        self._fake_method = fake_method
         self._print_res = print_res
         self._stream = stream
         self._output_unit = output_unit
@@ -69,13 +73,13 @@ class time_profiler(object):  # pylint: disable=R0902
         _func = self.func
         if not self.func:
             self.func = args[0]
-        if self._instance:
+        if not self._fake_method and self._instance:
             args = (self._instance,) + args
         return self if not _func else self._wrapper(*args, **kwargs)
 
     def __get__(self, *args, **kwargs):
         self._instance = args[0]
-        return self
+        return types.MethodType(self, *args, **kwargs) if self._fake_method else self
 
     def _wrapper(self, *args, **kwargs):
         """
