@@ -2,20 +2,19 @@
 """
 测试时间分析器 Mixin
 """
-import pytest
 from line_profiler import LineProfiler
 
-from moprofiler import TimeProfilerMixin, time, time_profiler
+from moprofiler import time_profiler
 
 
-class QuickSort(TimeProfilerMixin):
+class QuickSort(object):
     """
     快速排序
     """
     def __init__(self, arr):
         self.arr = arr
 
-    @time_profiler(name='quick_sort', print_res=False)
+    @time_profiler(print_res=False)
     def sort(self, left=None, right=None):
         """排序"""
         left = 0 if not isinstance(left, (int, float)) else left
@@ -45,33 +44,28 @@ class QuickSort(TimeProfilerMixin):
         self.arr[i], self.arr[j] = self.arr[j], self.arr[i]
 
 
-class TestTimeProfilerMixin(object):
+class TestTimeProfilerToMethod(object):
     """测试用于装饰方法的时间分析器"""
 
     @staticmethod
-    def test_time_profiler_mixin():
-        """测试时间分析器的 mixin"""
+    def test_time_profiler_run():
+        """测试类装饰方法的时间分析器的执行"""
         unsort_list = [3, 12, 12, 11, 15, 9, 12, 4, 15, 4, 2, 15, 7, 10, 12, 2, 3, 1, 14, 5, 7]
         print('\n乱序列表：{}'.format(unsort_list))
         qs = QuickSort(unsort_list)
+        print(12121212121, qs.sort)
         qs.sort()
         print('排序列表：{}'.format(qs.arr))
-        print('时间分析器暂存池：{}'.format(getattr(time, '__time_profiler_pool').keys()))
-        assert isinstance(qs.time_profiler('partition'), LineProfiler)
 
-        # qs.time_profiler('quick_sort').print_stats()
-        qs.time_profiler('partition').print_stats()
-        # qs.time_profiler('swap').print_stats()
+        assert qs.sort.__name__ == 'sort'
+        assert qs.partition.__name__ == 'partition'
 
-    @staticmethod
-    def test_time_profiler_key_error():
-        """测试获取不存在的时间分析器"""
-        qs = QuickSort([3, 2, 1])
-        qs.time_profiler('test', raise_except=False)
-        qs.time_profiler('test')
-        with pytest.raises(KeyError):
-            qs.time_profiler('sort')
+        assert qs.sort.__doc__ == '排序'
+        assert qs.partition.__doc__ == '分区'
 
+        assert isinstance(qs.sort.profiler, LineProfiler)
+        assert isinstance(qs.partition.profiler, LineProfiler)
 
-if __name__ == '__main__':
-    TestTimeProfilerMixin.test_time_profiler_mixin()
+        qs.sort.profiler.print_stats()
+        qs.partition.profiler.print_stats()
+        # qs.swap.profiler.print_stats()
