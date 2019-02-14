@@ -5,10 +5,10 @@
 from .memory import (MemoryProfilerMixin, memory_profiler,
                      memory_profiler_getter)
 from .stopwatch import StopwatchMixin, stopwatch
-from .time import TimeProfilerMixin, time_profiler, time_profiler_getter
+from .time import time_profiler
 
 __all__ = [
-    'time_profiler', 'TimeProfilerMixin', 'time_profiler_getter',
-    'memory_profiler', 'MemoryProfilerMixin', 'memory_profiler_getter',
+    'time_profiler', 'memory_profiler',
+    'MemoryProfilerMixin', 'memory_profiler_getter',
     'stopwatch', 'StopwatchMixin',
 ]
