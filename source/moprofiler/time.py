@@ -13,7 +13,7 @@ from line_profiler import LineProfiler
 LOG = logging.getLogger(__name__)
 
 
-class time_profiler(object):  # pylint: disable=R0902
+class TimeProfiler(object):  # pylint: disable=R0902
     """时间分析器的类装饰器"""
     def __init__(
             self, _function=None, fake_method=False, print_res=True,
@@ -103,3 +103,6 @@ class time_profiler(object):  # pylint: disable=R0902
             stream=self._stream,
             output_unit=self._output_unit,
             stripzeros=self._stripzeros)
+
+
+time_profiler = TimeProfiler  # 此操作为了向后兼容旧版本的命名
