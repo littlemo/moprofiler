@@ -53,7 +53,6 @@ class TestTimeProfilerToMethod(object):
         unsort_list = [3, 12, 12, 11, 15, 9, 12, 4, 15, 4, 2, 15, 7, 10, 12, 2, 3, 1, 14, 5, 7]
         print('\n乱序列表：{}'.format(unsort_list))
         qs = QuickSort(unsort_list)
-        print(12121212121, qs.sort)
         qs.sort()
         print('排序列表：{}'.format(qs.arr))
 

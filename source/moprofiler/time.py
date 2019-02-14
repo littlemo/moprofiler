@@ -35,10 +35,6 @@ class time_profiler(object):  # pylint: disable=R0902
         :return: 装饰后的函数或方法
         :rtype: types.FunctionType or types.MethodType
         """
-        # 可被外部使用的公共属性
-        self.profiler = LineProfiler()
-
-        # 内部属性
         # 被装饰函数/方法
         self._func = None
         self._instance = None
@@ -46,6 +42,10 @@ class time_profiler(object):  # pylint: disable=R0902
         self.func = _function if _invoked \
             else None  # type: types.FunctionType or types.MethodType
 
+        # 可被外部使用的公共属性
+        self.profiler = LineProfiler()
+
+        # 内部属性
         # 装饰器参数
         self._print_res = print_res
         self._stream = stream
