@@ -2,6 +2,8 @@
 """
 测试时间分析器 Mixin
 """
+import types
+
 from line_profiler import LineProfiler
 
 from moprofiler import time_profiler
@@ -24,7 +26,7 @@ class QuickSort(object):
             self.sort(left, partition_index - 1)
             self.sort(partition_index + 1, right)
 
-    @time_profiler(print_res=False)
+    @time_profiler(print_res=False, fake_method=True)
     def partition(self, left, right):
         """分区"""
         pivot = left
@@ -38,7 +40,6 @@ class QuickSort(object):
         self.swap(pivot, index - 1)
         return index - 1
 
-    # @time_profiler
     def swap(self, i, j):
         """交换"""
         self.arr[i], self.arr[j] = self.arr[j], self.arr[i]
@@ -65,6 +66,8 @@ class TestTimeProfilerToMethod(object):
         assert isinstance(qs.sort.profiler, LineProfiler)
         assert isinstance(qs.partition.profiler, LineProfiler)
 
+        assert isinstance(qs.sort, time_profiler)
+        assert isinstance(qs.partition, types.MethodType)
+
         qs.sort.profiler.print_stats()
         qs.partition.profiler.print_stats()
-        # qs.swap.profiler.print_stats()
