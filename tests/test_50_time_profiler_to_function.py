@@ -34,8 +34,8 @@ class TestTimeProfilerToFunction(object):
     """测试用于装饰函数的时间分析器"""
 
     @staticmethod
-    def test_time_profiler_run():
-        """测试时间分析器装饰器执行"""
+    def test_time_profiler_call():
+        """测试时间分析器装饰器调用"""
         assert isinstance(_judge_with_set.profiler, LineProfiler)
         assert isinstance(_judge_with_list.profiler, LineProfiler)
 
