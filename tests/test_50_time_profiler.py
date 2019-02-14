@@ -36,10 +36,10 @@ class TestTimeProfiler(object):
         assert _judge_with_set(random_list) == _judge_with_list(random_list)
         _judge_with_list(random_list)
         print('时间分析器暂存池：{}'.format(getattr(time, '__time_profiler_pool').keys()))
-        p1 = time_profiler_getter('_judge_with_list')
+        p1 = _judge_with_list.time_profiler
         p1.print_stats()
         _judge_with_list(random_list)
-        p2 = time_profiler_getter('_judge_with_list')
+        p2 = _judge_with_list.time_profiler
         assert p1 is p2
 
     @staticmethod

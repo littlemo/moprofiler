@@ -104,29 +104,41 @@ def time_profiler(
         """
         装饰器封装函数
         """
-        @wraps(func)
-        def inner(*args, **kwargs):
-            """
-            将被封装方法使用 LineProfiler 进行封装
-            """
-            _name = name or func.__name__
-            if not (args and base.is_instance_or_subclass(args[0], TimeProfilerMixin)):
-                # 若当前被装饰的方法未继承 TimeProfilerMixin ，则将其作为普通函数装饰
-                lp = time_profiler_getter(
-                    _name, raise_except=False, force_new_profiler=force_new_profiler)
-            else:
-                self_or_cls = args[0]  # type: TimeProfilerMixin
-                lp = self_or_cls.time_profiler(
-                    _name, raise_except=False, force_new_profiler=force_new_profiler)
+        class inner(object):
+            """类封装装饰器"""
+            def __init__(self):
+                self.time_profiler = None
 
-            profiler_wrapper = lp(func)
-            res = profiler_wrapper(*args, **kwargs)
-            if print_res:  # pragma: no cover
-                # 此处由于 LineProfiler 的 C 库造成的 coverage 统计 Bug ，故手动配置为 no cover
-                lp.print_stats(
-                    stream=stream,
-                    output_unit=output_unit,
-                    stripzeros=stripzeros)
-            return res  # pragma: no cover
-        return inner
+            def init_time_profiler(self, *args):
+                """
+                初始化时间分析器
+                """
+                _name = name or func.__name__
+                if not (args and base.is_instance_or_subclass(args[0], TimeProfilerMixin)):
+                    # 若当前被装饰的方法未继承 TimeProfilerMixin ，则将其作为普通函数装饰
+                    lp = time_profiler_getter(
+                        _name, raise_except=False, force_new_profiler=force_new_profiler)
+                else:
+                    self_or_cls = args[0]  # type: TimeProfilerMixin
+                    lp = self_or_cls.time_profiler(
+                        _name, raise_except=False, force_new_profiler=force_new_profiler)
+                self.time_profiler = lp
+
+            @wraps(func)
+            def __call__(self, *args, **kwargs):
+                """
+                将被封装方法使用 LineProfiler 进行封装
+                """
+                if not self.time_profiler:
+                    self.init_time_profiler(*args)
+                profiler_wrapper = self.time_profiler(func)
+                res = profiler_wrapper(*args, **kwargs)
+                if print_res:  # pragma: no cover
+                    # 此处由于 LineProfiler 的 C 库造成的 coverage 统计 Bug ，故手动配置为 no cover
+                    self.time_profiler.print_stats(
+                        stream=stream,
+                        output_unit=output_unit,
+                        stripzeros=stripzeros)
+                return res  # pragma: no cover
+        return inner()
     return wrapper if not invoked else wrapper(func)
