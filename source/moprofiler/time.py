@@ -6,7 +6,7 @@ from __future__ import absolute_import
 
 import logging
 import types  # pylint: disable=W0611
-from functools import update_wrapper
+from functools import partial, update_wrapper
 
 from line_profiler import LineProfiler
 
@@ -41,6 +41,7 @@ class time_profiler(object):  # pylint: disable=R0902
         # 内部属性
         # 被装饰函数/方法
         self._func = None
+        self._instance = None
         _invoked = bool(_function and callable(_function))
         self.func = _function if _invoked \
             else None  # type: types.FunctionType or types.MethodType
@@ -68,7 +69,13 @@ class time_profiler(object):  # pylint: disable=R0902
         _func = self.func
         if not self.func:
             self.func = args[0]
+        if self._instance:
+            args = (self._instance,) + args
         return self if not _func else self._wrapper(*args, **kwargs)
+
+    def __get__(self, instance, owner):
+        self._instance = instance
+        return self
 
     def _wrapper(self, *args, **kwargs):
         """
