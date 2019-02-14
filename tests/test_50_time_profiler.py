@@ -30,7 +30,7 @@ def _judge_with_list(x):
     return cnt
 
 
-class TestTimeProfiler(object):
+class TestTimeProfilerToFunction(object):
     """测试用于装饰函数的时间分析器"""
 
     @staticmethod
