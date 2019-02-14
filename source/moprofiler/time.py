@@ -6,7 +6,7 @@ from __future__ import absolute_import
 
 import logging
 import types  # pylint: disable=W0611
-from functools import partial, update_wrapper
+from functools import update_wrapper
 
 from line_profiler import LineProfiler
 
