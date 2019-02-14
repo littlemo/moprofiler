@@ -149,8 +149,7 @@ class time_profiler(object):  # pylint: disable=R0902
         """
         将被封装方法使用 LineProfiler 进行封装
         """
-        if not self.time_profiler:
-            self.init_time_profiler(*args)
+        self.init_time_profiler(*args)
         profiler_wrapper = self.time_profiler(self.func)
         res = profiler_wrapper(*args, **kwargs)
         if self.print_res:  # pragma: no cover
