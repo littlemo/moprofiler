@@ -35,21 +35,22 @@ class time_profiler(object):  # pylint: disable=R0902
         :return: 装饰后的函数或方法
         :rtype: types.FunctionType or types.MethodType
         """
-        # 内部属性
-        self._func = None
-        self._profiler = LineProfiler()
+        # 可被外部使用的公共属性
+        self.profiler = LineProfiler()
 
+        # 内部属性
         # 被装饰函数/方法
+        self._func = None
         _invoked = bool(_function and callable(_function))
         self.func = _function if _invoked \
             else None  # type: types.FunctionType or types.MethodType
 
         # 装饰器参数
-        self.print_res = print_res
-        self.stream = stream
-        self.output_unit = output_unit
-        self.stripzeros = stripzeros
-        self.force_new_profiler = force_new_profiler
+        self._print_res = print_res
+        self._stream = stream
+        self._output_unit = output_unit
+        self._stripzeros = stripzeros
+        self._force_new_profiler = force_new_profiler
 
     @property
     def func(self):
@@ -63,11 +64,6 @@ class time_profiler(object):  # pylint: disable=R0902
             update_wrapper(self, func)
         self._func = func
 
-    @property
-    def profiler(self):
-        """分析器的 getter 方法"""
-        return self._profiler
-
     def __call__(self, *args, **kwargs):
         _func = self.func
         if not self.func:
@@ -78,16 +74,16 @@ class time_profiler(object):  # pylint: disable=R0902
         """
         将被封装方法使用 LineProfiler 进行封装
         """
-        if self.force_new_profiler:
-            self._profiler = LineProfiler()
-        profiler_wrapper = self._profiler(self.func)
+        if self._force_new_profiler:
+            self.profiler = LineProfiler()
+        profiler_wrapper = self.profiler(self.func)
         res = profiler_wrapper(*args, **kwargs)
 
-        if self.print_res:  # pragma: no cover
+        if self._print_res:  # pragma: no cover
             # 此处由于 LineProfiler 的 C 库造成的 coverage 统计 Bug ，故手动配置为 no cover
             self.profiler.print_stats(
-                stream=self.stream,
-                output_unit=self.output_unit,
-                stripzeros=self.stripzeros)
+                stream=self._stream,
+                output_unit=self._output_unit,
+                stripzeros=self._stripzeros)
 
         return res  # pragma: no cover
