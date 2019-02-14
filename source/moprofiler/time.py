@@ -79,11 +79,16 @@ class time_profiler(object):  # pylint: disable=R0902
         profiler_wrapper = self.profiler(self.func)
         res = profiler_wrapper(*args, **kwargs)
 
-        if self._print_res:  # pragma: no cover
-            # 此处由于 LineProfiler 的 C 库造成的 coverage 统计 Bug ，故手动配置为 no cover
-            self.profiler.print_stats(
-                stream=self._stream,
-                output_unit=self._output_unit,
-                stripzeros=self._stripzeros)
-
+        # 此处由于 LineProfiler 的 C 库造成的 coverage 统计 Bug ，故手动配置为 no cover
+        self._print_result()  # pragma: no cover
         return res  # pragma: no cover
+
+    def _print_result(self):
+        """打印统计结果"""
+        if not self._print_res:
+            return
+
+        self.profiler.print_stats(
+            stream=self._stream,
+            output_unit=self._output_unit,
+            stripzeros=self._stripzeros)
