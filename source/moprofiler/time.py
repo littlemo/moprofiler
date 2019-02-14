@@ -16,7 +16,7 @@ LOG = logging.getLogger(__name__)
 class time_profiler(object):  # pylint: disable=R0902
     """时间分析器"""
     def __init__(
-            self, _function=None, name='', print_res=True,
+            self, _function=None, print_res=True,
             stream=None, output_unit=None, stripzeros=False,
             force_new_profiler=False):
         """
@@ -26,7 +26,6 @@ class time_profiler(object):  # pylint: disable=R0902
 
         :param _function: 被封装的对象，由解释器自动传入，不需关心
         :type _function: types.FunctionType or types.MethodType
-        :param str name: 关键字参数，被装饰方法所使用的时间分析器名称，默认为使用被装饰方法的方法名
         :param bool print_res: 是否在被装饰对象退出后立刻打印分析结果，默认为 True 。
             当需要将多次调用结果聚集后输出时，可设为 False ，并通过 Mixin 中的 time_profiler 进行结果输出
         :param object stream: 输出方式，默认为 stdout ，可指定为文件
@@ -46,7 +45,6 @@ class time_profiler(object):  # pylint: disable=R0902
             else None  # type: types.FunctionType or types.MethodType
 
         # 装饰器参数
-        self.name = name
         self.print_res = print_res
         self.stream = stream
         self.output_unit = output_unit
