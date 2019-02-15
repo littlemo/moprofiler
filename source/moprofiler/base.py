@@ -2,10 +2,12 @@
 """
 提供用于性能分析的相关基类&函数定义
 """
+import abc
 import inspect
 import logging
 import types
 from contextlib import contextmanager
+from functools import update_wrapper
 
 from pyaop import AOP, Proxy, Return
 
@@ -108,3 +110,96 @@ class ProfilerMixin(object):
         :rtype: Iterator[Proxy]
         """
         yield self_or_cls
+
+
+class ClassDecoratorBase(object):
+    """
+    通用类装饰器基类
+    """
+    def __init__(self, _function=None, fake_method=False):
+        """
+        类装饰器初始化
+
+        :param _function: 被封装的对象，由解释器自动传入，不需关心
+        :type _function: types.FunctionType or types.MethodType
+        :param bool fake_method: 是否将被装饰后的类装饰器伪装成方法，默认为否。
+            注意，伪装后虽然仍然可以正常调用类装饰器中额外定义的对象属性，
+            但将不会有语法提示，此参数仅用于装饰类方法时使用，装饰函数时无效
+        """
+        # 被装饰函数/方法
+        self.__func = None
+        self.__instance = None
+        _invoked = bool(_function and callable(_function))
+        self.func = _function if _invoked \
+            else None  # type: types.FunctionType or types.MethodType
+
+        # 装饰器参数
+        self.__fake_method = fake_method
+
+    @property
+    def func(self):
+        """被封装函数的 getter 方法"""
+        return self.__func
+
+    @func.setter
+    def func(self, func):
+        """被封装函数的 setter 方法"""
+        if func:
+            update_wrapper(self, func)
+        self.__func = func
+
+    def __call__(self, *args, **kwargs):
+        _func = self.func
+        if not self.func:
+            self.func = args[0]
+        if not self.__fake_method and self.__instance:
+            args = (self.__instance,) + args
+        return self if not _func else self._wrapper(*args, **kwargs)
+
+    def __get__(self, *args, **kwargs):
+        self.__instance = args[0]
+        return types.MethodType(self, *args, **kwargs) if self.__fake_method else self
+
+
+class ProfilerClassDecorator(ClassDecoratorBase):
+    """
+    分析器的类装饰器
+    """
+    def __init__(
+            self, _function=None, force_new_profiler=False, profiler_args=None,
+            profiler_kwargs=None, **kwargs):
+        """
+        分析器的类装饰器初始化
+
+        增加分析器相关的供外部使用的公共属性
+
+        :param _function: 被封装的对象，由解释器自动传入，不需关心
+        :type _function: types.FunctionType or types.MethodType
+        :param bool force_new_profiler: 是否强制使用新的分析器，默认为 ``否``
+        :param tuple profiler_args: 分析器工厂的位置参数列表
+        :param dict profiler_kwargs: 分析器工厂的关键字参数字典
+        """
+        super(ProfilerClassDecorator, self).__init__(_function=_function, **kwargs)
+
+        self.profiler = None
+        self.profiler_args = profiler_args or ()
+        self.profiler_kwargs = profiler_kwargs or {}
+        self._force_new_profiler = force_new_profiler
+
+    def __call__(self, *args, **kwargs):
+        self.__init_profiler_from_factory()
+        return super(ProfilerClassDecorator, self).__call__(*args, **kwargs)
+
+    def __init_profiler_from_factory(self):
+        """从工厂实例化分析器"""
+        if self._force_new_profiler or not self.profiler:
+            self.profiler = self.profiler_factory(
+                *self.profiler_args, **self.profiler_kwargs)
+
+    @abc.abstractproperty
+    def profiler_factory(self):
+        """分析器工厂"""
+
+    @abc.abstractmethod
+    def _wrapper(self, *args, **kwargs):
+        """用于执行调用被封装方法"""
