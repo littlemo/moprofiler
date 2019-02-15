@@ -36,12 +36,16 @@ class TestTimeProfilerToFunction(object):
     @staticmethod
     def test_time_profiler_call():
         """测试时间分析器装饰器调用"""
+        assert isinstance(_judge_with_set.profiler, LineProfiler)
+        assert isinstance(_judge_with_list.profiler, LineProfiler)
+
         random_list = [random.choice(['2', '11']) for _x in range(1000)]
         _judge_with_set(random_list)
         assert _judge_with_set(random_list) == _judge_with_list(random_list)
 
         assert isinstance(_judge_with_set.profiler, LineProfiler)
         assert isinstance(_judge_with_list.profiler, LineProfiler)
+        assert _judge_with_set.profiler is not _judge_with_list.profiler
 
         p1 = _judge_with_list.profiler
         p1.print_stats()

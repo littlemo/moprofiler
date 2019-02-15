@@ -186,6 +186,8 @@ class ProfilerClassDecorator(ClassDecoratorBase):
         self.profiler_kwargs = profiler_kwargs or {}
         self._force_new_profiler = force_new_profiler
 
+        self.__init_profiler_from_factory()
+
     def __call__(self, *args, **kwargs):
         self.__init_profiler_from_factory()
         return super(ProfilerClassDecorator, self).__call__(*args, **kwargs)
