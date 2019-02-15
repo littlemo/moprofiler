@@ -78,6 +78,7 @@ class MemoryProfiler(base.ProfilerClassDecorator):
         self._precision = precision
 
     def print_stats(self):
+        """打印统计结果"""
         self.profiler.print_stats(
             stream=self._stream,
             precision=self._precision)

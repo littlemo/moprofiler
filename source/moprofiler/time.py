@@ -40,6 +40,7 @@ class TimeProfiler(base.ProfilerClassDecorator):
         self._stripzeros = stripzeros
 
     def print_stats(self):
+        """打印统计结果"""
         self.profiler.print_stats(
             stream=self._stream,
             output_unit=self._output_unit,

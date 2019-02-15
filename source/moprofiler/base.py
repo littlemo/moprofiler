@@ -206,4 +206,8 @@ class ProfilerClassDecorator(ClassDecoratorBase):
 
     @abc.abstractmethod
     def print_stats(self):
-        """打印统计结果"""
+        """
+        打印统计结果
+
+        抽象方法，需子类实现
+        """
