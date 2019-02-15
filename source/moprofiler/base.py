@@ -149,6 +149,10 @@ class ProfilerClassDecorator(ClassDecoratorBase):
     """
     分析器的类装饰器
     """
+    @abc.abstractproperty
+    def profiler_factory(self):
+        """分析器工厂"""
+
     def __init__(
             self, _function=None, force_new_profiler=False, profiler_args=None,
             profiler_kwargs=None, **kwargs):
@@ -184,7 +188,3 @@ class ProfilerClassDecorator(ClassDecoratorBase):
         if self._force_new_profiler or not self.profiler:
             self.profiler = self.profiler_factory(
                 *self.profiler_args, **self.profiler_kwargs)
-
-    @abc.abstractproperty
-    def profiler_factory(self):
-        """分析器工厂"""
