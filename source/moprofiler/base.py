@@ -149,6 +149,9 @@ class ClassDecoratorBase(object):
         self.__func = func
 
     def __call__(self, *args, **kwargs):
+        """
+        :rtype: ClassDecoratorBase
+        """
         _func = self.func
         if not self.func:
             self.func = args[0]
@@ -189,6 +192,9 @@ class ProfilerClassDecorator(ClassDecoratorBase):
         self.__init_profiler_from_factory()
 
     def __call__(self, *args, **kwargs):
+        """
+        :rtype: ProfilerClassDecorator
+        """
         self.__init_profiler_from_factory()
         return super(ProfilerClassDecorator, self).__call__(*args, **kwargs)
 
