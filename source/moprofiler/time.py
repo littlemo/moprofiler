@@ -42,22 +42,7 @@ class TimeProfiler(base.ProfilerClassDecorator):
         self._output_unit = output_unit
         self._stripzeros = stripzeros
 
-    def _wrapper(self, *args, **kwargs):
-        """
-        将被封装方法使用 LineProfiler 进行封装
-        """
-        profiler_wrapper = self.profiler(self.func)
-        res = profiler_wrapper(*args, **kwargs)
-
-        # 此处由于 LineProfiler 的 C 库造成的 coverage 统计 Bug ，故手动配置为 no cover
-        self._print_result()  # pragma: no cover
-        return res  # pragma: no cover
-
-    def _print_result(self):
-        """打印统计结果"""
-        if not self._print_res:
-            return
-
+    def print_stats(self):
         self.profiler.print_stats(
             stream=self._stream,
             output_unit=self._output_unit,

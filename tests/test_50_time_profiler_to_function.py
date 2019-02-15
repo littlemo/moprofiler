@@ -48,7 +48,7 @@ class TestTimeProfilerToFunction(object):
         assert _judge_with_set.profiler is not _judge_with_list.profiler
 
         p1 = _judge_with_list.profiler
-        p1.print_stats()
+        _judge_with_list.print_stats()
         _judge_with_list(random_list)
         p2 = _judge_with_list.profiler
         assert p1 is p2
@@ -78,3 +78,8 @@ class TestTimeProfilerToFunction(object):
         _force_new_profiler()
         p2 = _force_new_profiler.profiler
         assert p1 is not p2
+
+    @staticmethod
+    def test_print_stats():
+        """测试打印统计结果"""
+        _judge_with_list.print_stats()

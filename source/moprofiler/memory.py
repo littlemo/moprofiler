@@ -81,20 +81,7 @@ class MemoryProfiler(base.ProfilerClassDecorator):
         self._stream = stream
         self._precision = precision
 
-    def _wrapper(self, *args, **kwargs):
-        """
-        将被封装方法使用 MemoryProfiler 进行封装
-        """
-        profiler_wrapper = self.profiler(self.func)
-        res = profiler_wrapper(*args, **kwargs)
-        self._print_result()
-        return res
-
-    def _print_result(self):
-        """打印统计结果"""
-        if not self._print_res:
-            return
-
+    def print_stats(self):
         self.profiler.print_stats(
             stream=self._stream,
             precision=self._precision)

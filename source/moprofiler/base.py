@@ -176,6 +176,12 @@ class ProfilerClassDecorator(ClassDecoratorBase):
 
         self.__init_profiler_from_factory()
 
+    def __init_profiler_from_factory(self):
+        """从工厂实例化分析器"""
+        if self._force_new_profiler or not self.profiler:
+            self.profiler = self.profiler_factory(
+                *self.profiler_args, **self.profiler_kwargs)
+
     def __call__(self, *args, **kwargs):
         """
         :rtype: ProfilerClassDecorator
@@ -183,8 +189,15 @@ class ProfilerClassDecorator(ClassDecoratorBase):
         self.__init_profiler_from_factory()
         return super(ProfilerClassDecorator, self).__call__(*args, **kwargs)
 
-    def __init_profiler_from_factory(self):
-        """从工厂实例化分析器"""
-        if self._force_new_profiler or not self.profiler:
-            self.profiler = self.profiler_factory(
-                *self.profiler_args, **self.profiler_kwargs)
+    def _wrapper(self, *args, **kwargs):
+        profiler_wrapper = self.profiler(self.func)
+        res = profiler_wrapper(*args, **kwargs)
+
+        # 此处由于 LineProfiler 的 C 库造成的 coverage 统计 Bug ，故手动配置为 no cover
+        if self._print_res:
+            self.print_stats()
+        return res
+
+    @abc.abstractmethod
+    def print_stats(self):
+        """打印统计结果"""
