@@ -61,7 +61,7 @@ autodoc_default_flags = [
 autodoc_member_order = 'bysource'
 
 # Include __init__ docstring in class level docs
-autoclass_content = 'class'
+autoclass_content = 'init'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
