@@ -169,7 +169,7 @@ class ProfilerClassDecorator(ClassDecoratorBase):
         """
         super(ProfilerClassDecorator, self).__init__(_function=_function, **kwargs)
 
-        self.profiler = None
+        self.profiler = None  #: 分析器实例对象
         self.profiler_args = profiler_args or ()
         self.profiler_kwargs = profiler_kwargs or {}
         self._force_new_profiler = force_new_profiler
