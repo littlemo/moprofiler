@@ -87,4 +87,4 @@ class MemoryProfiler(base.ProfilerClassDecorator):
             precision=self._precision)
 
 
-memory_profiler = MemoryProfiler  # 此操作为了向后兼容旧版本的命名
+memory_profiler = MemoryProfiler  #: 此变量是为了向后兼容旧版本的命名

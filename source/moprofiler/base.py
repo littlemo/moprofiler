@@ -151,7 +151,7 @@ class ProfilerClassDecorator(ClassDecoratorBase):
     """
     @abc.abstractproperty
     def profiler_factory(self):
-        """分析器工厂"""
+        """用于生产分析器的工厂"""
 
     def __init__(
             self, _function=None, force_new_profiler=False, profiler_args=None,

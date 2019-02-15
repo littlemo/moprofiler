@@ -49,4 +49,4 @@ class TimeProfiler(base.ProfilerClassDecorator):
             stripzeros=self._stripzeros)
 
 
-time_profiler = TimeProfiler  # 此操作为了向后兼容旧版本的命名
+time_profiler = TimeProfiler  #: 此变量是为了向后兼容旧版本的命名
