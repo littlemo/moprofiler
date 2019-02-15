@@ -57,29 +57,6 @@ def get_callargs(func, *args, **kwargs):
         return callargs
 
 
-def get_default_key(self_or_cls, func):
-    """
-    获取默认的键名
-
-    生成规则 "模块名-类名-方法名"
-
-    :param object self_or_cls: 对象或类
-    :param func: 方法或方法名
-    :type func: FunctionType or str
-    :return: 键名
-    :rtype: str
-    """
-    if isinstance(self_or_cls, type):
-        key_list = [self_or_cls.__module__, self_or_cls.__name__]
-    else:
-        key_list = [self_or_cls.__module__, self_or_cls.__class__.__name__]
-    func_name = func.__name__ if hasattr(func, '__name__') else func
-    if not isinstance(func_name, str):
-        raise TypeError('func 参数的类型错误！{}'.format(type(func)))
-    key_list.append(func_name)
-    return '-'.join(key_list)
-
-
 def is_instance_or_subclass(self_or_cls, super_cls):
     """
     判断对象或类是否继承了指定类

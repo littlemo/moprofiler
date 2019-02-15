@@ -70,16 +70,6 @@ class TestBase(object):
     """测试基础函数包"""
 
     @staticmethod
-    def test_get_default_key():
-        """测试获取默认的键名函数"""
-        expect_name = '{name}-A-test'.format(name=__name__)
-        a = A()
-        assert base.get_default_key(a, a.test) == expect_name
-        assert base.get_default_key(A, A.test) == expect_name
-        with pytest.raises(TypeError):
-            base.get_default_key(a, 1)
-
-    @staticmethod
     def test_get_callargs():
         """测试获取调用参数字典的函数"""
         expect = {'a': 10, 'b': 20, 'args': (1, 2), 'kwargs': {'e': 'e', 'd': 'd'}}
