@@ -6,10 +6,10 @@ import random
 
 from line_profiler import LineProfiler
 
-from moprofiler import time_profiler
+from moprofiler import TimeProfiler
 
 
-@time_profiler
+@TimeProfiler
 def _judge_with_set(x):
     """test_wrapper_set_docstring"""
     cnt = 0
@@ -19,7 +19,7 @@ def _judge_with_set(x):
             cnt += 1
     return cnt
 
-@time_profiler(print_res=False, fake_method=True)
+@TimeProfiler(print_res=False, fake_method=True)
 def _judge_with_list(x):
     """test_wrapper_list_docstring"""
     cnt = 0
@@ -62,14 +62,14 @@ class TestTimeProfilerToFunction(object):
         assert _judge_with_set.__doc__ == 'test_wrapper_set_docstring'
         assert _judge_with_list.__doc__ == 'test_wrapper_list_docstring'
 
-        assert isinstance(_judge_with_set, time_profiler)
-        assert isinstance(_judge_with_list, time_profiler)
+        assert isinstance(_judge_with_set, TimeProfiler)
+        assert isinstance(_judge_with_list, TimeProfiler)
 
     @staticmethod
     def test_time_profiler_with_force_new_profiler():
         """测试强制使用新分析器的参数功能"""
 
-        @time_profiler(print_res=False, force_new_profiler=True)
+        @TimeProfiler(print_res=False, force_new_profiler=True)
         def _force_new_profiler():
             pass
 

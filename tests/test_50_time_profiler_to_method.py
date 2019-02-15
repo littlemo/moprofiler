@@ -6,7 +6,7 @@ import types
 
 from line_profiler import LineProfiler
 
-from moprofiler import time_profiler
+from moprofiler import TimeProfiler
 
 
 class QuickSort(object):
@@ -16,7 +16,7 @@ class QuickSort(object):
     def __init__(self, arr):
         self.arr = arr
 
-    @time_profiler(print_res=False)
+    @TimeProfiler(print_res=False)
     def sort(self, left=None, right=None):
         """排序"""
         left = 0 if not isinstance(left, (int, float)) else left
@@ -26,7 +26,7 @@ class QuickSort(object):
             self.sort(left, partition_index - 1)
             self.sort(partition_index + 1, right)
 
-    @time_profiler(print_res=False, fake_method=True)
+    @TimeProfiler(print_res=False, fake_method=True)
     def partition(self, left, right):
         """分区"""
         pivot = left
@@ -66,7 +66,7 @@ class TestTimeProfilerToMethod(object):
         assert isinstance(qs.sort.profiler, LineProfiler)
         assert isinstance(qs.partition.profiler, LineProfiler)
 
-        assert isinstance(qs.sort, time_profiler)
+        assert isinstance(qs.sort, TimeProfiler)
         assert isinstance(qs.partition, types.MethodType)
 
         qs.sort.profiler.print_stats()
