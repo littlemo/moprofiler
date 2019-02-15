@@ -140,6 +140,10 @@ class ClassDecoratorBase(object):
         self.__instance = args[0]
         return types.MethodType(self, *args, **kwargs) if self.__fake_method else self
 
+    @abc.abstractmethod
+    def _wrapper(self, *args, **kwargs):
+        """用于执行调用被封装方法"""
+
 
 class ProfilerClassDecorator(ClassDecoratorBase):
     """
@@ -184,7 +188,3 @@ class ProfilerClassDecorator(ClassDecoratorBase):
     @abc.abstractproperty
     def profiler_factory(self):
         """分析器工厂"""
-
-    @abc.abstractmethod
-    def _wrapper(self, *args, **kwargs):
-        """用于执行调用被封装方法"""
