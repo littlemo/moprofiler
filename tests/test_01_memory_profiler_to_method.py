@@ -1,18 +1,19 @@
 # encoding=utf8
 """
-测试内存分析器 Mixin
+测试用于装饰类方法的内存分析器的类装饰器
 """
-import pytest
+import types
+
 from memory_profiler import LineProfiler
 
-from moprofiler import MemoryProfilerMixin, memory, memory_profiler
+from moprofiler import MemoryProfiler
 
 
-class MemoryWaste(MemoryProfilerMixin):
+class MemoryWaste(object):
     """
     浪费内存
     """
-    @memory_profiler(name='wuwuwu', print_res=False)
+    @MemoryProfiler(print_res=False, fake_method=False)
     def list_waste(self):  # pylint: disable=R0201
         """列表"""
         a = [1] * (10 ** 5)
@@ -21,7 +22,7 @@ class MemoryWaste(MemoryProfilerMixin):
         return a
 
     @classmethod
-    @memory_profiler
+    @MemoryProfiler
     def dict_waste(cls, a):
         """字典"""
         ret = {}
@@ -30,22 +31,30 @@ class MemoryWaste(MemoryProfilerMixin):
         return ret
 
 
-class TestMemoryProfilerMixin(object):
+class TestMemoryProfilerToMethod(object):
     """测试用于装饰方法的内存分析器"""
 
     @staticmethod
-    def test_memory_profiler_mixin():
-        """测试内存分析器的 mixin"""
+    def test_memory_profiler_call():
+        """测试类装饰方法的内存分析器的执行"""
         mw = MemoryWaste()
         x = mw.list_waste()
         mw.dict_waste(x)
-        print('内存分析器暂存池：{}'.format(getattr(memory, '__memory_profiler_pool').keys()))
-        with pytest.raises(KeyError):
-            mw.memory_profiler('list_waste')
-        assert isinstance(mw.memory_profiler('dict_waste'), LineProfiler)
 
-        mw.memory_profiler('wuwuwu').print_stats()
+        assert mw.list_waste.__name__ == 'list_waste'
+        assert mw.dict_waste.__name__ == 'dict_waste'
+
+        assert mw.list_waste.__doc__ == '列表'
+        assert mw.dict_waste.__doc__ == '字典'
+
+        assert isinstance(mw.list_waste.profiler, LineProfiler)
+        assert isinstance(mw.dict_waste.profiler, LineProfiler)
+
+        assert isinstance(mw.list_waste, MemoryProfiler)
+        assert isinstance(mw.dict_waste, types.MethodType)
+
+        mw.list_waste.profiler.print_stats()
 
 
 if __name__ == '__main__':
-    TestMemoryProfilerMixin.test_memory_profiler_mixin()
+    TestMemoryProfilerToMethod.test_memory_profiler_call()
