@@ -1,6 +1,6 @@
 # encoding=utf8
 """
-测试时间分析器 Mixin
+测试用于装饰类方法的时间分析器的类装饰器
 """
 import types
 
