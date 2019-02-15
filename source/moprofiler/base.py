@@ -116,15 +116,15 @@ class ClassDecoratorBase(object):
     """
     通用类装饰器基类
     """
-    def __init__(self, _function=None, fake_method=False):
+    def __init__(self, _function=None, fake_method=True):
         """
         类装饰器初始化
 
         :param _function: 被封装的对象，由解释器自动传入，不需关心
         :type _function: types.FunctionType or types.MethodType
-        :param bool fake_method: 是否将被装饰后的类装饰器伪装成方法，默认为否。
-            注意，伪装后虽然仍然可以正常调用类装饰器中额外定义的对象属性，
-            但将不会有语法提示，此参数仅用于装饰类方法时使用，装饰函数时无效
+        :param bool fake_method: 是否将被装饰后的类装饰器伪装成方法，默认为是。
+            注意，伪装后仍然可以正常调用类装饰器中额外定义的对象属性，
+            此参数仅用于装饰类方法时使用，装饰函数时无效
         """
         # 被装饰函数/方法
         self.__func = None

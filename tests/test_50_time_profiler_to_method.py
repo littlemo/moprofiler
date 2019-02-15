@@ -26,7 +26,7 @@ class QuickSort(object):
             self.sort(left, partition_index - 1)
             self.sort(partition_index + 1, right)
 
-    @TimeProfiler(print_res=False, fake_method=True)
+    @TimeProfiler(print_res=False, fake_method=False)
     def partition(self, left, right):
         """分区"""
         pivot = left
@@ -66,8 +66,8 @@ class TestTimeProfilerToMethod(object):
         assert isinstance(qs.sort.profiler, LineProfiler)
         assert isinstance(qs.partition.profiler, LineProfiler)
 
-        assert isinstance(qs.sort, TimeProfiler)
-        assert isinstance(qs.partition, types.MethodType)
+        assert isinstance(qs.sort, types.MethodType)
+        assert isinstance(qs.partition, TimeProfiler)
 
         qs.sort.profiler.print_stats()
         qs.partition.profiler.print_stats()
