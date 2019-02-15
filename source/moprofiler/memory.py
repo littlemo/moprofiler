@@ -57,17 +57,13 @@ class MemoryProfiler(base.ProfilerClassDecorator):
     profiler_factory = MemoryProfilerWrapper
 
     def __init__(
-            self, _function=None, print_res=True, stream=None,
+            self, _function=None, stream=None,
             precision=1, backend='psutil', **kwargs):
         """
         内存分析器的类装饰器
 
         :param _function: 被封装的对象，由解释器自动传入，不需关心
         :type _function: types.FunctionType or types.MethodType
-        :param bool print_res: 是否在被装饰对象退出后立刻打印分析结果，默认为 ``True`` 。
-            当需要将多次调用结果聚集后输出时，可设为 ``False`` ，并通过调用被装饰函数/方法
-            （装饰后将被替换为 :py:class:`~moprofiler.memory.MemoryProfiler` ）的
-            :py:meth:`~moprofiler.memory.MemoryProfiler.print_stats` 方法进行结果输出
         :param object stream: 输出方式，默认为 stdout ，可指定为文件
         :param int precision: 精度，默认为 1
         :param str backend: 内存监控的 backend ，默认为 'psutil'
@@ -78,7 +74,6 @@ class MemoryProfiler(base.ProfilerClassDecorator):
         super(MemoryProfiler, self).__init__(_function=_function, **kwargs)
 
         # 内部属性，装饰器参数
-        self._print_res = print_res
         self._stream = stream
         self._precision = precision
 

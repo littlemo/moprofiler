@@ -154,8 +154,8 @@ class ProfilerClassDecorator(ClassDecoratorBase):
         """用于生产分析器的工厂"""
 
     def __init__(
-            self, _function=None, force_new_profiler=False, profiler_args=None,
-            profiler_kwargs=None, **kwargs):
+            self, _function=None, print_res=True, force_new_profiler=False,
+            profiler_args=None, profiler_kwargs=None, **kwargs):
         """
         分析器的类装饰器初始化
 
@@ -163,6 +163,10 @@ class ProfilerClassDecorator(ClassDecoratorBase):
 
         :param _function: 被封装的对象，由解释器自动传入，不需关心
         :type _function: types.FunctionType or types.MethodType
+        :param bool print_res: 是否在被装饰对象退出后立刻打印分析结果，默认为 ``True`` 。
+            当需要将多次调用结果聚集后输出时，可设为 ``False`` ，并通过调用被装饰函数/方法
+            （装饰后将被替换为 :py:class:`~moprofiler.base.ProfilerClassDecorator` ）的
+            :py:meth:`~moprofiler.base.ProfilerClassDecorator.print_stats` 方法进行结果输出
         :param bool force_new_profiler: 是否强制使用新的分析器，默认为 ``否``
         :param tuple profiler_args: 分析器工厂的位置参数列表
         :param dict profiler_kwargs: 分析器工厂的关键字参数字典
@@ -172,6 +176,8 @@ class ProfilerClassDecorator(ClassDecoratorBase):
         self.profiler = None  #: 分析器实例对象
         self.profiler_args = profiler_args or ()
         self.profiler_kwargs = profiler_kwargs or {}
+
+        self._print_res = print_res
         self._force_new_profiler = force_new_profiler
 
         self.__init_profiler_from_factory()
