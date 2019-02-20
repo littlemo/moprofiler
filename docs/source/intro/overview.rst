@@ -132,14 +132,14 @@
 
 .. code-block:: python
 
-    from moprofiler import MemoryProfilerMixin, memory_profiler
+    from moprofiler import MemoryProfiler
 
 
-    class MemoryWaste(MemoryProfilerMixin):
+    class MemoryWaste(object):
         """
         浪费内存
         """
-        @memory_profiler(name='wuwuwu', print_res=False)
+        @MemoryProfiler(print_res=False)
         def list_waste(self):
             """列表"""
             a = [1] * (10 ** 5)
@@ -148,7 +148,7 @@
             return a
 
         @classmethod
-        @memory_profiler
+        @MemoryProfiler
         def dict_waste(cls, a):
             """字典"""
             ret = {}
@@ -159,16 +159,16 @@
     mw = MemoryWaste()
     x = mw.list_waste()
     mw.dict_waste(x)
-    mw.memory_profiler('wuwuwu').print_stats()
+    mw.list_waste.print_stats()
 
 执行结果如下::
 
-    Filename: tests/test_01_memory_profiler_mixin.py
+    Filename: tests/test_01_memory_profiler_to_method.py
 
     Line #    Mem usage    Increment   Line Contents
     ================================================
         23     40.9 MiB     40.9 MiB       @classmethod
-        24                                 @memory_profiler
+        24                                 @MemoryProfiler
         25                                 def dict_waste(cls, a):
         26                                     """字典"""
         27     40.9 MiB      0.0 MiB           ret = {}
@@ -177,11 +177,11 @@
         30     40.9 MiB      0.0 MiB           return ret
 
 
-    Filename: tests/test_01_memory_profiler_mixin.py
+    Filename: tests/test_01_memory_profiler_to_method.py
 
     Line #    Mem usage    Increment   Line Contents
     ================================================
-        15     38.6 MiB     38.6 MiB       @memory_profiler(name='wuwuwu', print_res=False)
+        15     38.6 MiB     38.6 MiB       @MemoryProfiler(print_res=False)
         16                                 def list_waste(self):
         17                                     """列表"""
         18     39.4 MiB      0.8 MiB           a = [1] * (10 ** 5)
@@ -194,7 +194,7 @@
    当被装饰函数&方法被多次调用时，会复用该函数&方法对应的单例分析器，
    所得的统计结果在上次的基础上累加后用于打印。若确实不关心累计结果，
    仅需要使用全新的分析器进行分析可在装饰时使用 ``force_new_profiler`` 关键字参数实现，
-   具体参考 :py:func:`~moprofiler.memory.memory_profiler`
+   具体参考其父类中的定义 :py:class:`~moprofiler.base.ProfilerClassDecorator`
 
 .. _overview-stopwatch:
 
