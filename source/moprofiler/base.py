@@ -9,6 +9,7 @@ import types
 from contextlib import contextmanager
 from functools import update_wrapper
 
+import six
 from pyaop import AOP, Proxy, Return
 
 LOG = logging.getLogger(__name__)
@@ -138,7 +139,7 @@ class ClassDecoratorBase(object):
 
     def __get__(self, *args, **kwargs):
         self.__instance = args[0]
-        return types.MethodType(self, *args, **kwargs) if self.__fake_method else self
+        return six.create_bound_method(self, self.__instance) if self.__fake_method else self
 
     @abc.abstractmethod
     def _wrapper(self, *args, **kwargs):
