@@ -12,7 +12,7 @@
 
 您可以通过 ``pip`` 进行安装，本包兼容 ``Python 2.7`` & ``Python 3.5`` ::
 
-    pip install moprofiler
+    pip install moprofiler>=1.1.0
 
 使用说明
 ========
@@ -21,7 +21,7 @@
 :ref:`overview-memory-profiler` , :ref:`overview-stopwatch` 组成，
 下面将对其使用方式进行逐一介绍
 
-三个子工具分别提供了一个 ``装饰器`` 以及一个用于扩充类的 ``Mixin`` 类，
+三个子工具分别提供了一个 ``装饰器`` ，其中秒表工具额外提供了一个 ``Mixin`` 类，
 一般使用中会存在如下装饰场景:
 
 #. 独立函数
@@ -33,8 +33,8 @@
 为方便使用，三个工具分别提供了一个 ``超级装饰器`` ，即同时支持上述几类场景，
 且同时支持 ``有参装饰`` 与 ``无参装饰`` ，当不传参时装饰器后不需增加 ``()``
 
-当被装饰对象为 ``类方法`` 或 ``实例方法`` 时，可通过让类继承相应的 ``Mixin`` 类，
-来获得功能增强，有效减小使用成本
+其中秒表工具，当被装饰对象为 ``类方法`` 或 ``实例方法`` 时，可通过让类继承
+:py:class:`~moprofiler.stopwatch.StopwatchMixin` 类，来获得功能增强
 
 .. _overview-time-profiler:
 
@@ -45,10 +45,10 @@
 
 .. code-block:: python
 
-    from moprofiler import TimeProfilerMixin, time_profiler
+    from moprofiler import TimeProfiler
 
 
-    class QucikSort(TimeProfilerMixin):
+    class QucikSort(object):
         """
         快速排序
         """
@@ -64,7 +64,7 @@
                 self.sort(left, partition_index - 1)
                 self.sort(partition_index + 1, right)
 
-        @time_profiler(print_res=False)
+        @TimeProfiler(print_res=False)
         def partition(self, left, right):
             """分区"""
             pivot = left
@@ -85,7 +85,9 @@
     unsort_list = [3, 12, 12, 11, 15, 9, 12, 4, 15, 4, 2, 15, 7, 10, 12, 2, 3, 1, 14, 5, 7]
     qs = QucikSort(unsort_list)
     qs.sort()
-    qs.time_profiler('partition').print_stats()
+
+    # 从 1.1.0 版本开始支持的结果打印方式
+    qs.partition.print_stats()
     print('结果: {}'.format(qs.arr))
 
 执行结果如下::
@@ -93,12 +95,12 @@
     Timer unit: 1e-06 s
 
     Total time: 0.000344 s
-    File: tests/test_04_time_profiler_mixin.py
+    File: tests/test_50_time_profiler_to_method.py
     Function: partition at line 28
 
     Line #      Hits         Time  Per Hit   % Time  Line Contents
     ==============================================================
-        28                                               @time_profiler(print_res=False)
+        28                                               @TimeProfiler(print_res=False)
         29                                               def partition(self, left, right):
         30                                                   """分区"""
         31        15         17.0      1.1      4.9          pivot = left
@@ -119,7 +121,7 @@
    当被装饰函数&方法被多次调用时，会复用该函数&方法对应的单例分析器，
    所得的统计结果在上次的基础上累加后用于打印。若确实不关心累计结果，
    仅需要使用全新的分析器进行分析可在装饰时使用 ``force_new_profiler`` 关键字参数实现，
-   具体参考 :py:func:`~moprofiler.time.time_profiler`
+   具体参考其父类中的定义 :py:class:`~moprofiler.base.ProfilerClassDecorator`
 
 .. _overview-memory-profiler:
 
