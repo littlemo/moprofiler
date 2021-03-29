@@ -38,7 +38,7 @@ psutil==5.4.8
 ptyprocess==0.6.0
 py==1.7.0
 pyaop==0.0.6
-Pygments==2.3.1
+Pygments==2.7.4
 pylint==1.9.4
 pyparsing==2.3.0
 pytest==4.0.1
