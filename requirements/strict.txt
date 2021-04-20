@@ -36,7 +36,7 @@ pluggy==0.8.0
 prompt-toolkit==1.0.15
 psutil==5.4.8
 ptyprocess==0.6.0
-py==1.7.0
+py==1.10.0
 pyaop==0.0.6
 Pygments==2.3.1
 pylint==1.9.4
